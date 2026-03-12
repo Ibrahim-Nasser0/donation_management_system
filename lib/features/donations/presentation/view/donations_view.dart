@@ -147,6 +147,7 @@ class _DonationsViewState extends State<DonationsView> {
           child: Column(
             children: [
               FilterChips(
+                hintText: 'Search donations ...',
                 filters: _filters,
                 selectedFilter: _selectedFilter,
                 onFilterSelected: (filter) {
@@ -188,14 +189,13 @@ class _DonationsViewState extends State<DonationsView> {
           flex: 1,
           child: Column(
             children: [
-              RecordDonationForm(
-                onConfirmPressed: () {},
-              ),
+              RecordDonationForm(onConfirmPressed: () {}),
               Gap(20.h),
               CampaignGoalCard(
                 goalAmount: '\$100k',
                 currentAmount: '\$45,200',
-                description: 'Help us reach our goal to support more families in need. Every donation counts!',
+                description:
+                    'Help us reach our goal to support more families in need. Every donation counts!',
                 progress: 0.452,
               ),
             ],
