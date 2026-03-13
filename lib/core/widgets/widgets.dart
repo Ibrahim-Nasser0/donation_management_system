@@ -8,3 +8,4 @@ export 'package:flutter/material.dart';
 export 'package:gap/gap.dart';
 export 'package:flutter_screenutil/flutter_screenutil.dart';
 export 'package:donation_management_system/core/theme/typography.dart';
+export 'package:donation_management_system/core/theme/colors.dart';
