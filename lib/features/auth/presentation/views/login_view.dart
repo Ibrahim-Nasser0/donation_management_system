@@ -17,7 +17,7 @@ class LoginView extends StatelessWidget {
       body: Center(
         child: Container(
           width: 460.w,
-          height: 730.h,
+          height: 750.h,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16.r),

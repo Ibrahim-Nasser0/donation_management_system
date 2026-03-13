@@ -72,7 +72,7 @@ class RecentActivity extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 385.w,
-      height: 400.h,
+      height: 410.h,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
