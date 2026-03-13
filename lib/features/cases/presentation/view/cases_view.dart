@@ -8,27 +8,29 @@ class CasesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
-      child: ListView(
-        children: [
-          Text('Cases Management', style: AppTypography.h1),
-          Gap(5.h),
-          Row(
-            children: [
-              Text(
-                'Manage your donor database, track contributions, and maintain relationships with\nindividuals and corporate partners.',
-                style: AppTypography.bodyMedium,
-              ),
-              const Spacer(),
-              const AddNewCase(),
-            ],
-          ),
-          Gap(20.h),
-          CasesKPIsCards(),
-          Gap(20.h),
-          const CasesViewBody(),
-        ],
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
+        child: ListView(
+          children: [
+            Text('Cases Management', style: AppTypography.h1),
+            Gap(5.h),
+            Row(
+              children: [
+                Text(
+                  'Manage your donor database, track contributions, and maintain relationships with\nindividuals and corporate partners.',
+                  style: AppTypography.bodyMedium,
+                ),
+                const Spacer(),
+                const AddNewCase(),
+              ],
+            ),
+            Gap(20.h),
+            CasesKPIsCards(),
+            Gap(20.h),
+            const CasesViewBody(),
+          ],
+        ),
       ),
     );
   }
@@ -73,3 +75,6 @@ class CasesKPIsCards extends StatelessWidget {
     );
   }
 }
+
+
+

@@ -10,27 +10,28 @@ class DonorsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-      child: ListView(
-        children: [
-          Text('Donors Management', style: AppTypography.h1),
-          Gap(5.h),
-          Row(
-            children: [
-              Text(
-                'Manage your donor database, track contributions, and maintain relationships with\nindividuals and corporate partners.',
-                style: AppTypography.bodyMedium,
-              ),
-              const Spacer(),
-              const AddNewDonor(),
-            ],
-          ),
-          Gap(20.h),
-          const DonorsViewBody(),
-        ],
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+        child: ListView(
+          children: [
+            Text('Donors Management', style: AppTypography.h1),
+            Gap(5.h),
+            Row(
+              children: [
+                Text(
+                  'Manage your donor database, track contributions, and maintain relationships with\nindividuals and corporate partners.',
+                  style: AppTypography.bodyMedium,
+                ),
+                const Spacer(),
+                const AddNewDonor(),
+              ],
+            ),
+            Gap(20.h),
+            const DonorsViewBody(),
+          ],
+        ),
       ),
     );
   }
 }
-

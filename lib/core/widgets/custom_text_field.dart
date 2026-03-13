@@ -15,7 +15,7 @@ class CustomTextField extends StatelessWidget {
   final int maxLines;
   final bool enabled;
   final ValueChanged<String>? onChanged;
-  
+  final FocusNode? focusNode;
 
   const CustomTextField({
     super.key,
@@ -30,6 +30,7 @@ class CustomTextField extends StatelessWidget {
     this.maxLines = 1,
     this.enabled = true,
     this.onChanged,
+    this.focusNode,
   });
 
   @override
@@ -49,6 +50,7 @@ class CustomTextField extends StatelessWidget {
           Gap(8.h),
         ],
         TextFormField(
+          focusNode: focusNode,
           controller: controller,
           obscureText: obscureText,
           keyboardType: keyboardType,

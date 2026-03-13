@@ -13,35 +13,37 @@ class DashboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 32.h),
-      child: Column(
-        mainAxisAlignment: .start,
-        crossAxisAlignment: .start,
-        children: [
-          const KPIsCards(),
-          Gap(32.h),
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  child: ListView(
-                    children: [
-                      const DashboardChart(),
-                      Gap(32.h),
-                      const RecentActivity(),
-                    ],
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 32.h),
+        child: Column(
+          mainAxisAlignment: .start,
+          crossAxisAlignment: .start,
+          children: [
+            const KPIsCards(),
+            Gap(32.h),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        const DashboardChart(),
+                        Gap(32.h),
+                        const RecentActivity(),
+                      ],
+                    ),
                   ),
-                ),
-                Gap(32.w),
-                SizedBox(
-                  width: 385.w,
-                  child: ListView(children: [NewCases()]),
-                ),
-              ],
+                  Gap(32.w),
+                  SizedBox(
+                    width: 385.w,
+                    child: ListView(children: [NewCases()]),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

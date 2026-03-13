@@ -31,6 +31,7 @@ class CustomTable<T> extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
             decoration: BoxDecoration(
               color: AppColors.divider,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
               border: Border(bottom: BorderSide(color: AppColors.divider)),
             ),
             child: Row(children: headerCells),
