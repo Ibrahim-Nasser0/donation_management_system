@@ -23,9 +23,11 @@ import 'package:donation_management_system/features/dashboard/domain/repo/dashbo
 import 'package:donation_management_system/features/dashboard/domain/use_case/get_dashboard_kpis_use_case.dart';
 import 'package:donation_management_system/features/dashboard/domain/use_case/get_donation_trends_use_case.dart';
 import 'package:donation_management_system/features/dashboard/domain/use_case/get_last_donations_use_case.dart';
+import 'package:donation_management_system/features/dashboard/domain/use_case/get_last_distributions_use_case.dart';
 import 'package:donation_management_system/features/dashboard/presentation/view_model/kpis_cubit/kpis_cubit.dart';
 import 'package:donation_management_system/features/dashboard/presentation/view_model/recent_activity_cubit/recent_activity_cubit.dart';
 import 'package:donation_management_system/features/dashboard/presentation/view_model/trends_cubit/trends_cubit.dart';
+import 'package:donation_management_system/features/dashboard/presentation/view_model/last_distributions_cubit/last_distributions_cubit.dart';
 
 // Donors
 import 'package:donation_management_system/features/donors/data/data_source/donors_remote_data_source.dart';
@@ -86,11 +88,14 @@ void _initDashboard() {
   sl.registerFactory(() => KpisCubit(getDashboardKpisUseCase: sl()));
   sl.registerFactory(() => TrendsCubit(getDonationTrendsUseCase: sl()));
   sl.registerFactory(() => RecentActivityCubit(getLastDonationsUseCase: sl()));
+  sl.registerFactory(
+      () => LastDistributionsCubit(getLastDistributionsUseCase: sl()));
 
   // Use Cases
   sl.registerLazySingleton(() => GetDashboardKpisUseCase(sl()));
   sl.registerLazySingleton(() => GetDonationTrendsUseCase(sl()));
   sl.registerLazySingleton(() => GetLastDonationsUseCase(sl()));
+  sl.registerLazySingleton(() => GetLastDistributionsUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<DashboardRepo>(
@@ -153,7 +158,6 @@ void _initExternal() {
   sl.registerLazySingleton(() => const FlutterSecureStorage());
 
   // Network
-  // In internet_connection_checker 3.0.0, the constructor might be instance
   sl.registerLazySingleton(() => InternetConnectionChecker.instance);
   sl.registerLazySingleton(() => Dio());
   sl.registerLazySingleton<ApiConsumer>(() => DioConsumer(dio: sl()));

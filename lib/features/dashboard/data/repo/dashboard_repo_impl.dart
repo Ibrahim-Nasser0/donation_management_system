@@ -4,6 +4,7 @@ import '../../../../core/network/errors/failure.dart';
 import '../../../../core/network/network_info.dart';
 import '../../domain/entity/dashboard_kpis_entity.dart';
 import '../../domain/entity/donation_trends_entity.dart';
+import '../../domain/entity/last_distribution_entity.dart';
 import '../../domain/entity/last_donations_entity.dart';
 import '../../domain/repo/dashboard_repo.dart';
 import '../data_source/dashboard_remote_data_source.dart';
@@ -30,6 +31,11 @@ class DashboardRepoImpl implements DashboardRepo {
   @override
   Future<Either<Failure, List<LastDonation>>> getLastDonations() async {
     return _handleRequest(() => remoteDataSource.getLastDonations());
+  }
+
+  @override
+  Future<Either<Failure, List<LastDistribution>>> getLastDistributions() async {
+    return _handleRequest(() => remoteDataSource.getLastDistributions());
   }
 
   Future<Either<Failure, T>> _handleRequest<T>(Future<T> Function() call) async {

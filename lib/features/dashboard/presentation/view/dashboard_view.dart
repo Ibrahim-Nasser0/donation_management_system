@@ -9,6 +9,8 @@ import 'package:donation_management_system/features/dashboard/presentation/view_
 import 'package:donation_management_system/features/dashboard/presentation/view_model/recent_activity_cubit/recent_activity_state.dart';
 import 'package:donation_management_system/features/dashboard/presentation/view_model/trends_cubit/trends_cubit.dart';
 import 'package:donation_management_system/features/dashboard/presentation/view_model/trends_cubit/trends_state.dart';
+import 'package:donation_management_system/features/dashboard/presentation/view_model/last_distributions_cubit/last_distributions_cubit.dart';
+import 'package:donation_management_system/features/dashboard/presentation/view_model/last_distributions_cubit/last_distributions_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -18,6 +20,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/routes/routes.dart';
 import '../../domain/entity/last_donations_entity.dart';
+import '../../domain/entity/last_distribution_entity.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
@@ -28,7 +31,13 @@ class DashboardView extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => sl<KpisCubit>()..getKpis()),
         BlocProvider(create: (context) => sl<TrendsCubit>()..getTrends()),
-        BlocProvider(create: (context) => sl<RecentActivityCubit>()..getLastDonations()),
+        BlocProvider(
+          create: (context) => sl<RecentActivityCubit>()..getLastDonations(),
+        ),
+        BlocProvider(
+          create: (context) =>
+              sl<LastDistributionsCubit>()..getLastDistributions(),
+        ),
       ],
       child: Scaffold(
         backgroundColor: AppColors.background,
@@ -56,7 +65,8 @@ class DashboardView extends StatelessWidget {
                     ),
                   ),
                   Gap(32.w),
-                  const NewCases(),
+                  // Last Distributions Section (Replaces New Cases)
+                  const _LastDistributionsSection(),
                 ],
               ),
             ],
@@ -163,7 +173,8 @@ class _RecentActivitySection extends StatelessWidget {
         } else if (state is RecentActivityError) {
           return _ErrorWidget(
             message: state.message,
-            onRetry: () => context.read<RecentActivityCubit>().getLastDonations(),
+            onRetry: () =>
+                context.read<RecentActivityCubit>().getLastDonations(),
           );
         }
         return const SizedBox.shrink();
@@ -178,6 +189,45 @@ class _RecentActivitySection extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: 300.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+      ),
+    );
+  }
+}
+
+class _LastDistributionsSection extends StatelessWidget {
+  const _LastDistributionsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LastDistributionsCubit, LastDistributionsState>(
+      builder: (context, state) {
+        if (state is LastDistributionsLoaded) {
+          return LastDistributionsWidget(distributions: state.distributions);
+        } else if (state is LastDistributionsLoading) {
+          return _buildShimmerDistributions();
+        } else if (state is LastDistributionsError) {
+          return _ErrorWidget(
+            message: state.message,
+            onRetry: () =>
+                context.read<LastDistributionsCubit>().getLastDistributions(),
+          );
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildShimmerDistributions() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        width: 385.w,
+        height: 740.h,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16.r),
@@ -212,33 +262,117 @@ class _ErrorWidget extends StatelessWidget {
   }
 }
 
-class NewCases extends StatelessWidget {
-  const NewCases({super.key});
+class LastDistributionsWidget extends StatelessWidget {
+  final List<LastDistribution> distributions;
+  const LastDistributionsWidget({super.key, required this.distributions});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 385.w,
-      height: 740.h,
+      height: 620.h,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: EdgeInsets.all(16.r),
             child: Row(
               children: [
-                Text('New Cases', style: AppTypography.h2),
+                Text('Last Distributions', style: AppTypography.h2),
                 const Spacer(),
-                const Icon(Icons.more_vert),
+                const Icon(Icons.more_vert, color: AppColors.textSecondary),
               ],
             ),
           ),
           const Divider(),
-          const Expanded(child: Center(child: Text('Coming Soon'))),
+          if (distributions.isEmpty)
+            const Expanded(child: Center(child: Text('No distributions found')))
+          else
+            Expanded(
+              child: ListView.separated(
+                padding: EdgeInsets.all(16.r),
+                itemCount: distributions.length,
+                separatorBuilder: (context, index) => Gap(16.h),
+                itemBuilder: (context, index) {
+                  final dist = distributions[index];
+                  return Row(
+                    children: [
+                      Container(
+                        width: 48.r,
+                        height: 48.r,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        child: Icon(
+                          Icons.outbox_rounded,
+                          color: AppColors.primary,
+                          size: 24.r,
+                        ),
+                      ),
+                      Gap(12.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              dist.caseName,
+                              style: AppTypography.bodyMedium.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Gap(4.h),
+                            Text(
+                              DateFormat('MMM dd, yyyy').format(dist.date),
+                              style: AppTypography.bodySmall.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Gap(8.w),
+                      Text(
+                        '\$${dist.amount.toStringAsFixed(0)}',
+                        style: AppTypography.bodyMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green[700],
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          Padding(
+            padding: EdgeInsets.all(16.r),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  context.go(Routes.distributions);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary.withOpacity(0.05),
+                  foregroundColor: AppColors.primary,
+                  elevation: 0,
+                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                ),
+                child: const Text('View Detailed Report'),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -295,6 +429,7 @@ class RecentActivity extends StatelessWidget {
   }
 }
 
+// ... rest of header and row classes remain same ...
 class RecentActivityHeader extends StatelessWidget {
   const RecentActivityHeader({super.key});
 
@@ -429,7 +564,10 @@ class RecentActivtyRow extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 4.h,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.green[50],
                     borderRadius: BorderRadius.circular(20.r),
