@@ -3,6 +3,7 @@ import '../../../../core/network/errors/exceptions.dart';
 import '../../../../core/network/errors/failure.dart';
 import '../../../../core/network/network_info.dart';
 import '../../domain/entity/dashboard_kpis_entity.dart';
+import '../../domain/entity/donation_trends_entity.dart';
 import '../../domain/repo/dashboard_repo.dart';
 import '../data_source/dashboard_remote_data_source.dart';
 
@@ -20,6 +21,32 @@ class DashboardRepoImpl implements DashboardRepo {
     if (await networkInfo.isConnected) {
       try {
         final result = await remoteDataSource.getDashboardKpis();
+        return Right(result);
+      } on AppException catch (e) {
+        if (e is ServerException) {
+          return Left(ServerFailure(message: e.message, code: e.statusCode));
+        } else if (e is NetworkException) {
+          return const Left(NetworkFailure());
+        } else if (e is ValidationException) {
+          return Left(ValidationFailure(message: e.message, errors: e.errors));
+        } else if (e is UnauthorizedException) {
+          return const Left(UnauthorizedFailure());
+        } else {
+          return Left(ServerFailure(message: e.message));
+        }
+      } catch (e) {
+        return Left(UnknownFailure(message: 'Unexpected error: ${e.toString()}'));
+      }
+    } else {
+      return const Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, DonationTrends>> getDonationTrends() async {
+    if (await networkInfo.isConnected) {
+      try {
+        final result = await remoteDataSource.getDonationTrends();
         return Right(result);
       } on AppException catch (e) {
         if (e is ServerException) {

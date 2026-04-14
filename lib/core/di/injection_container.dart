@@ -24,6 +24,7 @@ import 'package:donation_management_system/features/donors/domain/use_case/get_d
 import 'package:donation_management_system/features/donors/presentation/view_model/donors_cubit/donors_cubit.dart';
 import '../../features/dashboard/presentation/view_model/dashboard_cubit/dashboard_cubit.dart';
 import '../../features/dashboard/domain/use_case/get_dashboard_kpis_use_case.dart';
+import '../../features/dashboard/domain/use_case/get_donation_trends_use_case.dart';
 import '../../features/dashboard/domain/repo/dashboard_repo.dart';
 import '../../features/dashboard/data/repo/dashboard_repo_impl.dart';
 import '../../features/dashboard/data/data_source/dashboard_remote_data_source.dart';
@@ -34,10 +35,14 @@ final sl = GetIt.instance;
 Future<void> init() async {
   //! Features - Dashboard
   // Cubits
-  sl.registerFactory(() => DashboardCubit(sl()));
+  sl.registerFactory(() => DashboardCubit(
+        getDashboardKpisUseCase: sl(),
+        getDonationTrendsUseCase: sl(),
+      ));
 
   // UseCases
   sl.registerLazySingleton(() => GetDashboardKpisUseCase(sl()));
+  sl.registerLazySingleton(() => GetDonationTrendsUseCase(sl()));
 
   // Repositories
   sl.registerLazySingleton<DashboardRepo>(

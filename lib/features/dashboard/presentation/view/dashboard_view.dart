@@ -19,72 +19,120 @@ class DashboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => sl<DashboardCubit>()..getKpis(),
+      create: (context) => sl<DashboardCubit>()..getDashboardData(),
       child: Scaffold(
         backgroundColor: AppColors.background,
         body: Padding(
           padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 32.h),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              BlocBuilder<DashboardCubit, DashboardState>(
-                builder: (context, state) {
-                  if (state is DashboardKpisLoaded) {
-                    return KPIsCards(kpis: state.kpis);
-                  } else if (state is DashboardLoading) {
-                    return _buildShimmerKpis();
-                  } else if (state is DashboardError) {
-                    return Center(child: Text(state.message));
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-              Gap(32.h),
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ListView(
-                        children: [
-                          const DashboardChart(),
-                          Gap(32.h),
-                          const RecentActivity(),
-                        ],
+          child: BlocBuilder<DashboardCubit, DashboardState>(
+            builder: (context, state) {
+              if (state is DashboardDataLoaded) {
+                return _buildDashboardContent(context, state);
+              } else if (state is DashboardLoading) {
+                return _buildShimmerLoading();
+              } else if (state is DashboardError) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(state.message, style: const TextStyle(color: Colors.red)),
+                      Gap(16.h),
+                      ElevatedButton(
+                        onPressed: () => context.read<DashboardCubit>().getDashboardData(),
+                        child: const Text('Retry'),
                       ),
-                    ),
-                    Gap(32.w),
-                    SizedBox(
-                      width: 385.w,
-                      child: ListView(children: [const NewCases()]),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                      if (state.message.contains('Unauthorized'))
+                        TextButton(
+                          onPressed: () => context.go(Routes.login),
+                          child: const Text('Go to Login'),
+                        ),
+                    ],
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget _buildShimmerKpis() {
+  Widget _buildDashboardContent(BuildContext context, DashboardDataLoaded state) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        KPIsCards(kpis: state.kpis),
+        Gap(32.h),
+        Expanded(
+          child: Row(
+            children: [
+              Expanded(
+                child: ListView(
+                  children: [
+                    DashboardChart(trends: state.trends),
+                    Gap(32.h),
+                    const RecentActivity(),
+                  ],
+                ),
+              ),
+              Gap(32.w),
+              SizedBox(
+                width: 385.w,
+                child: ListView(children: [const NewCases()]),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildShimmerLoading() {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: List.generate(
-          4,
-          (index) => Container(
-            width: 290.w,
-            height: 200.h,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16.r),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(
+              4,
+              (index) => Container(
+                width: 290.w,
+                height: 200.h,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+              ),
             ),
           ),
-        ),
+          Gap(32.h),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                  ),
+                ),
+                Gap(32.w),
+                Container(
+                  width: 385.w,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.r),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -115,7 +163,6 @@ class RecentActivity extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 385.w,
-      // height: 410.h,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
