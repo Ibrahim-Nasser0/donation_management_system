@@ -3,135 +3,209 @@ import 'package:donation_management_system/core/theme/colors.dart';
 import 'package:donation_management_system/core/theme/typography.dart';
 import 'package:donation_management_system/features/dashboard/presentation/view/widgets/dashboard_chart.dart';
 import 'package:donation_management_system/features/dashboard/presentation/view/widgets/kpis_cards.dart';
+import 'package:donation_management_system/features/dashboard/presentation/view_model/kpis_cubit/kpis_cubit.dart';
+import 'package:donation_management_system/features/dashboard/presentation/view_model/kpis_cubit/kpis_state.dart';
+import 'package:donation_management_system/features/dashboard/presentation/view_model/recent_activity_cubit/recent_activity_cubit.dart';
+import 'package:donation_management_system/features/dashboard/presentation/view_model/recent_activity_cubit/recent_activity_state.dart';
+import 'package:donation_management_system/features/dashboard/presentation/view_model/trends_cubit/trends_cubit.dart';
+import 'package:donation_management_system/features/dashboard/presentation/view_model/trends_cubit/trends_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
-import '../view_model/dashboard_cubit/dashboard_cubit.dart';
-import '../view_model/dashboard_cubit/dashboard_state.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/routes/routes.dart';
+import '../../domain/entity/last_donations_entity.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<DashboardCubit>()..getDashboardData(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => sl<KpisCubit>()..getKpis()),
+        BlocProvider(create: (context) => sl<TrendsCubit>()..getTrends()),
+        BlocProvider(create: (context) => sl<RecentActivityCubit>()..getLastDonations()),
+      ],
       child: Scaffold(
         backgroundColor: AppColors.background,
-        body: Padding(
+        body: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 32.h),
-          child: BlocBuilder<DashboardCubit, DashboardState>(
-            builder: (context, state) {
-              if (state is DashboardDataLoaded) {
-                return _buildDashboardContent(context, state);
-              } else if (state is DashboardLoading) {
-                return _buildShimmerLoading();
-              } else if (state is DashboardError) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(state.message, style: const TextStyle(color: Colors.red)),
-                      Gap(16.h),
-                      ElevatedButton(
-                        onPressed: () => context.read<DashboardCubit>().getDashboardData(),
-                        child: const Text('Retry'),
-                      ),
-                      if (state.message.contains('Unauthorized'))
-                        TextButton(
-                          onPressed: () => context.go(Routes.login),
-                          child: const Text('Go to Login'),
-                        ),
-                    ],
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // KPIs Section
+              const _KpisSection(),
+              Gap(32.h),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        // Trends Section
+                        const _TrendsSection(),
+                        Gap(32.h),
+                        // Recent Activity Section
+                        const _RecentActivitySection(),
+                      ],
+                    ),
                   ),
-                );
-              }
-              return const SizedBox.shrink();
-            },
+                  Gap(32.w),
+                  const NewCases(),
+                ],
+              ),
+            ],
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildDashboardContent(BuildContext context, DashboardDataLoaded state) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        KPIsCards(kpis: state.kpis),
-        Gap(32.h),
-        Expanded(
-          child: Row(
-            children: [
-              Expanded(
-                child: ListView(
-                  children: [
-                    DashboardChart(trends: state.trends),
-                    Gap(32.h),
-                    const RecentActivity(),
-                  ],
-                ),
-              ),
-              Gap(32.w),
-              SizedBox(
-                width: 385.w,
-                child: ListView(children: [const NewCases()]),
-              ),
-            ],
-          ),
-        ),
-      ],
+class _KpisSection extends StatelessWidget {
+  const _KpisSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<KpisCubit, KpisState>(
+      builder: (context, state) {
+        if (state is KpisLoaded) {
+          return KPIsCards(kpis: state.kpis);
+        } else if (state is KpisLoading) {
+          return _buildShimmerKpis();
+        } else if (state is KpisError) {
+          return _ErrorWidget(
+            message: state.message,
+            onRetry: () => context.read<KpisCubit>().getKpis(),
+          );
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 
-  Widget _buildShimmerLoading() {
+  Widget _buildShimmerKpis() {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: List.generate(
+          4,
+          (index) => Container(
+            width: 290.w,
+            height: 160.h,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16.r),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TrendsSection extends StatelessWidget {
+  const _TrendsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<TrendsCubit, TrendsState>(
+      builder: (context, state) {
+        if (state is TrendsLoaded) {
+          return DashboardChart(trends: state.trends);
+        } else if (state is TrendsLoading) {
+          return _buildShimmerChart();
+        } else if (state is TrendsError) {
+          return _ErrorWidget(
+            message: state.message,
+            onRetry: () => context.read<TrendsCubit>().getTrends(),
+          );
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildShimmerChart() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        width: 800.w,
+        height: 500.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+      ),
+    );
+  }
+}
+
+class _RecentActivitySection extends StatelessWidget {
+  const _RecentActivitySection();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<RecentActivityCubit, RecentActivityState>(
+      builder: (context, state) {
+        if (state is RecentActivityLoaded) {
+          return RecentActivity(donations: state.donations);
+        } else if (state is RecentActivityLoading) {
+          return _buildShimmerActivity();
+        } else if (state is RecentActivityError) {
+          return _ErrorWidget(
+            message: state.message,
+            onRetry: () => context.read<RecentActivityCubit>().getLastDonations(),
+          );
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildShimmerActivity() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        width: double.infinity,
+        height: 300.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+      ),
+    );
+  }
+}
+
+class _ErrorWidget extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _ErrorWidget({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(16.r),
+      decoration: BoxDecoration(
+        color: Colors.red[50],
+        borderRadius: BorderRadius.circular(12.r),
+      ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(
-              4,
-              (index) => Container(
-                width: 290.w,
-                height: 200.h,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16.r),
-                ),
-              ),
-            ),
-          ),
-          Gap(32.h),
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                  ),
-                ),
-                Gap(32.w),
-                Container(
-                  width: 385.w,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16.r),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          Text(message, style: const TextStyle(color: Colors.red)),
+          const Gap(8),
+          TextButton(onPressed: onRetry, child: const Text('Retry')),
         ],
       ),
     );
@@ -145,24 +219,40 @@ class NewCases extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 385.w,
-      height: 640.h,
+      height: 740.h,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: AppColors.border),
       ),
-      child: const Center(child: Text('New Cases')),
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16.r),
+            child: Row(
+              children: [
+                Text('New Cases', style: AppTypography.h2),
+                const Spacer(),
+                const Icon(Icons.more_vert),
+              ],
+            ),
+          ),
+          const Divider(),
+          const Expanded(child: Center(child: Text('Coming Soon'))),
+        ],
+      ),
     );
   }
 }
 
 class RecentActivity extends StatelessWidget {
-  const RecentActivity({super.key});
+  final List<LastDonation> donations;
+  const RecentActivity({super.key, required this.donations});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 385.w,
+      width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
@@ -192,11 +282,13 @@ class RecentActivity extends StatelessWidget {
             ),
           ),
           const RecentActivityHeader(),
-          const RecentActivtyRow(),
-          const RecentActivtyRow(),
-          const RecentActivtyRow(),
-          const RecentActivtyRow(),
-          const RecentActivtyRow(),
+          if (donations.isEmpty)
+            Padding(
+              padding: EdgeInsets.all(32.r),
+              child: const Text('No recent donations found'),
+            )
+          else
+            ...donations.map((d) => RecentActivtyRow(donation: d)).toList(),
         ],
       ),
     );
@@ -211,7 +303,7 @@ class RecentActivityHeader extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 60.h,
-      color: AppColors.divider,
+      color: AppColors.divider.withOpacity(0.3),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Row(
@@ -222,7 +314,7 @@ class RecentActivityHeader extends StatelessWidget {
                 'Donor',
                 style: AppTypography.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: AppColors.textSecondary,
                 ),
               ),
             ),
@@ -232,7 +324,7 @@ class RecentActivityHeader extends StatelessWidget {
                 'Amount',
                 style: AppTypography.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: AppColors.textSecondary,
                 ),
               ),
             ),
@@ -242,7 +334,7 @@ class RecentActivityHeader extends StatelessWidget {
                 'Category',
                 style: AppTypography.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: AppColors.textSecondary,
                 ),
               ),
             ),
@@ -252,7 +344,7 @@ class RecentActivityHeader extends StatelessWidget {
                 'Date',
                 style: AppTypography.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: AppColors.textSecondary,
                 ),
               ),
             ),
@@ -262,7 +354,7 @@ class RecentActivityHeader extends StatelessWidget {
                 'Status',
                 style: AppTypography.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: AppColors.textSecondary,
                 ),
               ),
             ),
@@ -274,57 +366,83 @@ class RecentActivityHeader extends StatelessWidget {
 }
 
 class RecentActivtyRow extends StatelessWidget {
-  const RecentActivtyRow({super.key});
+  final LastDonation donation;
+  const RecentActivtyRow({super.key, required this.donation});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       child: Row(
         children: [
           SizedBox(
             width: 190.w,
             child: Text(
-              'Ibrahim Nasser',
+              donation.donorName,
               style: AppTypography.bodyMedium.copyWith(
                 color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
           SizedBox(
             width: 150.w,
             child: Text(
-              '30,000',
+              '\$ ${donation.amount.toStringAsFixed(0)}',
               style: AppTypography.bodyMedium.copyWith(
                 color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 150.w,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(6.r),
+              ),
+              child: Text(
+                donation.category,
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ),
           SizedBox(
             width: 150.w,
             child: Text(
-              'Money',
+              DateFormat('yyyy-MM-dd').format(donation.date),
               style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 150.w,
-            child: Text(
-              '2025/10/10',
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.primary,
+                color: AppColors.textSecondary,
               ),
             ),
           ),
           Expanded(
-            child: Text(
-              textAlign: TextAlign.end,
-              'Completed',
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textPrimary,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: Colors.green[50],
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: Text(
+                    'Completed',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: Colors.green[700],
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
