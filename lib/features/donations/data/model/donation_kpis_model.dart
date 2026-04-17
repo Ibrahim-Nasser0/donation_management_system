@@ -2,18 +2,18 @@ import 'package:donation_management_system/features/donations/domain/entity/dona
 
 class DonationKpisModel extends DonationKpisEntity {
   const DonationKpisModel({
-    required super.totalAmount,
-    required super.completedCount,
-    required super.pendingCount,
-    required super.avgAmount,
+    required super.monthlyTotal,
+    required super.transactionCount,
+    required super.topCategory,
+    required super.pendingAmount,
   });
 
   factory DonationKpisModel.fromJson(Map<String, dynamic> json) {
     return DonationKpisModel(
-      totalAmount: (json['totalAmount'] as num).toDouble(),
-      completedCount: json['completedCount'] as int,
-      pendingCount: json['pendingCount'] as int,
-      avgAmount: (json['avgAmount'] as num).toDouble(),
+      monthlyTotal: (json['monthlyTotal'] as num).toDouble(),
+      transactionCount: json['transactionCount'] as int,
+      topCategory: json['topCategory'] as String,
+      pendingAmount: (json['pendingAmount'] as num).toDouble(),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:donation_management_system/core/theme/colors.dart';
 import 'package:donation_management_system/core/theme/typography.dart';
+import 'package:donation_management_system/core/widgets/widgets.dart';
 import 'package:donation_management_system/features/donations/domain/entity/donation_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,15 +22,18 @@ class DonationTableRow extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Row(
           children: [
-            _cell('#${donation.id}', width: 80.w),
-            _cell(donation.donorName, width: 220.w),
-            _cell('\$${donation.amount.toStringAsFixed(2)}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-                width: 140.w),
+            _cell(donation.donorName, width: 200.w),
+            _cell(
+              '\$${donation.amount.toStringAsFixed(2)}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              width: 140.w,
+            ),
             _cell(donation.categoryName, width: 140.w),
-            _cell(DateFormat('MMM dd, yyyy').format(donation.date),
-                width: 140.w),
-            _cell(donation.supervisorName, width: 160.w),
+            _cell(
+              DateFormat('MMM dd, yyyy').format(donation.date),
+              width: 140.w,
+            ),
+            _cell(donation.supervisorName, width: 150.w),
             Expanded(child: _statusCell(donation.status)),
           ],
         ),
@@ -55,38 +59,55 @@ class DonationTableRow extends StatelessWidget {
 
     switch (status.toLowerCase()) {
       case 'completed':
-        color = const Color(0xFF10B981);
-        bgColor = const Color(0xFFD1FAE5);
+        color = AppColors.success;
+        bgColor = AppColors.success.withOpacity(0.1);
         break;
       case 'pending':
-        color = const Color(0xFFF59E0B);
-        bgColor = const Color(0xFFFEF3C7);
+        color = AppColors.warning;
+        bgColor = AppColors.warning.withOpacity(0.1);
         break;
       case 'cancelled':
-        color = const Color(0xFFEF4444);
-        bgColor = const Color(0xFFFEE2E2);
+        color = AppColors.error;
+        bgColor = AppColors.error.withOpacity(0.1);
         break;
       default:
         color = AppColors.textSecondary;
-        bgColor = AppColors.divider;
+        bgColor = AppColors.divider.withOpacity(0.5);
     }
 
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(20.r),
-        ),
-        child: Text(
-          status,
-          style: AppTypography.bodySmall.copyWith(
-            color: color,
-            fontWeight: FontWeight.w600,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(color: color.withOpacity(0.2)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 6.w,
+                height: 6.w,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+              Gap(5.w),
+              Text(
+                status,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.bodySmall.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12.sp,
+                ),
+              ),
+            ],
           ),
         ),
-      ),
+      ],
     );
   }
 }

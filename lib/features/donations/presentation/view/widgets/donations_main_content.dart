@@ -58,7 +58,7 @@ class _DonationsMainContentState extends State<DonationsMainContent> {
           return Column(
             children: [
               _buildFilters(context, state),
-              Gap(16.h),
+              Gap(24.h),
               DonationsTable(donations: state.currentPageDonations),
               Gap(16.h),
               _buildPagination(context, state),

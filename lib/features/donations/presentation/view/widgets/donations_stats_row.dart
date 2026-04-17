@@ -5,11 +5,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 
+import 'package:intl/intl.dart';
+
 class DonationsStatsRow extends StatelessWidget {
   const DonationsStatsRow({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final currencyFormat = NumberFormat.currency(
+      symbol: '\$',
+      decimalDigits: 0,
+    );
+
     return BlocBuilder<DonationStatsCubit, DonationStatsState>(
       builder: (context, state) {
         if (state is DonationStatsLoading) {
@@ -24,37 +31,37 @@ class DonationsStatsRow extends StatelessWidget {
             children: [
               Expanded(
                 child: StatCard(
-                  title: 'Total Donations',
-                  value: '\$${kpis.totalAmount.toStringAsFixed(0)}',
-                  percentageChange: 0, // Trends not implemented in kpis endpoint yet
-                  icon: Icons.attach_money,
+                  title: 'Monthly Total',
+                  value: currencyFormat.format(kpis.monthlyTotal),
+                  percentageChange: 0,
+                  icon: Icons.account_balance_wallet_outlined,
                 ),
               ),
               Gap(16.w),
               Expanded(
                 child: StatCard(
-                  title: 'Completed',
-                  value: kpis.completedCount.toString(),
+                  title: 'Transactions',
+                  value: kpis.transactionCount.toString(),
                   percentageChange: 0,
-                  icon: Icons.check_circle_outline,
+                  icon: Icons.receipt_long_outlined,
                 ),
               ),
               Gap(16.w),
               Expanded(
                 child: StatCard(
-                  title: 'Pending',
-                  value: kpis.pendingCount.toString(),
+                  title: 'Top Category',
+                  value: kpis.topCategory,
                   percentageChange: 0,
-                  icon: Icons.pending_outlined,
+                  icon: Icons.star_border_outlined,
                 ),
               ),
               Gap(16.w),
               Expanded(
                 child: StatCard(
-                  title: 'Avg. Amount',
-                  value: '\$${kpis.avgAmount.toStringAsFixed(0)}',
+                  title: 'Pending Amount',
+                  value: currencyFormat.format(kpis.pendingAmount),
                   percentageChange: 0,
-                  icon: Icons.trending_up_outlined,
+                  icon: Icons.hourglass_empty_outlined,
                 ),
               ),
             ],

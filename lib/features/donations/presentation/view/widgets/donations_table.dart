@@ -58,13 +58,12 @@ class _DonationsTableHeader extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Row(
           children: [
-            _headerCell('ID', width: 80.w),
-            _headerCell('Donor', width: 220.w),
+            _headerCell('Donor', width: 200.w),
             _headerCell('Amount', width: 140.w),
             _headerCell('Category', width: 140.w),
             _headerCell('Date', width: 140.w),
-            _headerCell('Supervisor', width: 160.w),
-            Expanded(child: _headerCell('Status', textAlign: TextAlign.end)),
+            _headerCell('Supervisor', width: 150.w),
+            Expanded(child: _headerCell('Status', textAlign: TextAlign.center)),
           ],
         ),
       ),

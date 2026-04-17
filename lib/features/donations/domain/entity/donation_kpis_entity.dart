@@ -1,18 +1,18 @@
 import 'package:equatable/equatable.dart';
 
 class DonationKpisEntity extends Equatable {
-  final double totalAmount;
-  final int completedCount;
-  final int pendingCount;
-  final double avgAmount;
+  final double monthlyTotal;
+  final int transactionCount;
+  final String topCategory;
+  final double pendingAmount;
 
   const DonationKpisEntity({
-    required this.totalAmount,
-    required this.completedCount,
-    required this.pendingCount,
-    required this.avgAmount,
+    required this.monthlyTotal,
+    required this.transactionCount,
+    required this.topCategory,
+    required this.pendingAmount,
   });
 
   @override
-  List<Object?> get props => [totalAmount, completedCount, pendingCount, avgAmount];
+  List<Object?> get props => [monthlyTotal, transactionCount, topCategory, pendingAmount];
 }
