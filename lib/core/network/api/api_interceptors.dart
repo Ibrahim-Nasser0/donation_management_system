@@ -1,9 +1,16 @@
 import 'package:dio/dio.dart';
+import 'package:donation_management_system/core/routes/app_router.dart';
+import 'package:donation_management_system/core/routes/routes.dart';
+import 'package:donation_management_system/features/auth/data/data_source/user_local_data_source.dart';
 import 'package:flutter/foundation.dart';
 
 /// API Interceptor for handling requests, responses, and errors
 /// Provides centralized logging and error handling
 class ApiInterceptor extends Interceptor {
+  final UserLocalDataSource userLocalDataSource;
+
+  ApiInterceptor({required this.userLocalDataSource});
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     // Log request details
@@ -41,7 +48,23 @@ class ApiInterceptor extends Interceptor {
     debugPrint('Response: ${err.response?.data}');
     debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
+    // Handle Unauthorized (401)
+    if (err.response?.statusCode == 401) {
+      _handleLogout();
+    }
+
     super.onError(err, handler);
+  }
+
+  void _handleLogout() async {
+    debugPrint('🚨 Status 401 detected: Logging out user and clearing data.');
+
+    // Clear local user data
+    await userLocalDataSource.deleteToken();
+    await userLocalDataSource.deleteUserId();
+
+    // Redirect to login
+    AppRouter.router.go(Routes.login);
   }
 }
 

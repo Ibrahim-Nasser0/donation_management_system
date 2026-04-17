@@ -242,7 +242,7 @@ void _initExternal() {
   sl.registerLazySingleton<ApiConsumer>(() => DioConsumer(dio: sl()));
 
   // Interceptors
-  sl.registerLazySingleton(() => ApiInterceptor());
+  sl.registerLazySingleton(() => ApiInterceptor(userLocalDataSource: sl()));
   sl.registerLazySingleton(
     () => AuthInterceptor(
       getToken: () => sl<UserLocalDataSource>().getToken(),
