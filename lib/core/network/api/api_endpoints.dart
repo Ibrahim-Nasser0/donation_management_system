@@ -26,4 +26,8 @@ class ServerStrings {
 
   // Categories
   static const String categories = "api/Categories";
+
+  // Employees
+  static const String employees = "api/Employees";
+  static const String employeesKPIs = "api/Employees/kpis";
 }

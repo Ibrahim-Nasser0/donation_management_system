@@ -1,66 +1,31 @@
 import 'package:donation_management_system/core/widgets/widgets.dart';
-import 'package:donation_management_system/features/donors/presentation/view/widgets/donor_data_row.dart';
-import 'package:donation_management_system/features/employees/data/models/employee_table_model.dart';
+import 'package:donation_management_system/features/employees/domain/entity/employee_entity.dart';
 
 class EmployeesTable extends StatelessWidget {
-  const EmployeesTable({super.key});
+  final List<EmployeeEntity> employees;
+
+  const EmployeesTable({super.key, required this.employees});
 
   static const List<TableHeader> _headers = [
-    TableHeader(text: 'Employee Name', flex: 2),
+    TableHeader(text: 'Employee', flex: 2),
     TableHeader(text: 'Username', flex: 1),
     TableHeader(text: 'Role', flex: 1),
     TableHeader(text: 'Phone', flex: 1),
-    TableHeader(text: 'Actions', flex: 0),
+    TableHeader(text: 'Address', flex: 1),
   ];
 
   @override
   Widget build(BuildContext context) {
     return CustomTable(
       headerCells: _headers,
-      dataRow: const [
-        EmployeeTableModel(
-          name: 'Sarah Jenkins',
-          email: 'sarah.jenkins@donationmgr.com',
-          username: '@s.jenkins',
-          role: EmployeeRole.admin,
-          phone: '(555) 123-4567',
-        ),
-        EmployeeTableModel(
-          name: 'Michael Chen',
-          email: 'michael.chen@donationmgr.com',
-          username: '@m.chen',
-          role: EmployeeRole.staff,
-          phone: '(555) 987-6543',
-        ),
-        EmployeeTableModel(
-          name: 'David Miller',
-          email: 'david.miller@donationmgr.com',
-          username: '@d.miller',
-          role: EmployeeRole.fieldWorker,
-          phone: '(555) 456-7890',
-        ),
-        EmployeeTableModel(
-          name: 'Jessica Wu',
-          email: 'jessica.wu@donationmgr.com',
-          username: '@j.wu',
-          role: EmployeeRole.staff,
-          phone: '(555) 789-0123',
-        ),
-        EmployeeTableModel(
-          name: 'Robert Smith',
-          email: 'robert.smith@donationmgr.com',
-          username: '@r.smith',
-          role: EmployeeRole.fieldWorker,
-          phone: '(555) 321-6547',
-        ),
-      ],
+      dataRow: employees,
       itemBuilder: (item) => EmployeeDataRow(employee: item),
     );
   }
 }
 
 class EmployeeDataRow extends StatelessWidget {
-  final EmployeeTableModel employee;
+  final EmployeeEntity employee;
 
   const EmployeeDataRow({super.key, required this.employee});
 
@@ -158,7 +123,18 @@ class EmployeeDataRow extends StatelessWidget {
               ),
             ),
           ),
-          const ActionsButtons(donor: null,),
+          Expanded(
+            flex: 1,
+            child: Text(
+              employee.address,
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textSecondary,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );
@@ -166,29 +142,32 @@ class EmployeeDataRow extends StatelessWidget {
 }
 
 class _RoleBadge extends StatelessWidget {
-  final EmployeeRole role;
+  final String role;
 
   const _RoleBadge({required this.role});
 
   @override
   Widget build(BuildContext context) {
-    late final String label;
-    late final Color bg;
-    late final Color fg;
+    String label = role;
+    Color bg;
+    Color fg;
 
-    switch (role) {
-      case EmployeeRole.admin:
-        label = 'Admin';
+    switch (role.toLowerCase()) {
+      case 'admin':
         bg = const Color(0xFFEDE9FE);
         fg = const Color(0xFF5B21B6);
-      case EmployeeRole.staff:
-        label = 'Staff';
+        break;
+      case 'supervisor':
         bg = const Color(0xFFE0F2FE);
         fg = const Color(0xFF0369A1);
-      case EmployeeRole.fieldWorker:
-        label = 'Field Worker';
+        break;
+      case 'employee':
+      case 'field worker':
+      case 'staff':
+      default:
         bg = const Color(0xFFFFF4E6);
         fg = const Color(0xFFC2410C);
+        break;
     }
 
     return Align(

@@ -70,6 +70,14 @@ import 'package:donation_management_system/features/categories/data/repo/categor
 import 'package:donation_management_system/features/categories/domain/repo/categories_repo.dart';
 import 'package:donation_management_system/features/categories/domain/use_case/get_categories_use_case.dart';
 import 'package:donation_management_system/features/categories/presentation/view_model/categories_cubit/categories_cubit.dart';
+// Employees
+import 'package:donation_management_system/features/employees/data/data_source/employees_remote_data_source.dart';
+import 'package:donation_management_system/features/employees/data/repo/employees_repo_impl.dart';
+import 'package:donation_management_system/features/employees/domain/repo/employees_repo.dart';
+import 'package:donation_management_system/features/employees/domain/use_case/add_employee_use_case.dart';
+import 'package:donation_management_system/features/employees/domain/use_case/get_employees_use_case.dart';
+import 'package:donation_management_system/features/employees/presentation/view_model/add_employee_cubit/add_employee_cubit.dart';
+import 'package:donation_management_system/features/employees/presentation/view_model/employees_cubit/employees_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -81,6 +89,7 @@ Future<void> init() async {
   _initCases();
   _initDonations();
   _initCategories();
+  _initEmployees();
   _initExternal();
 }
 
@@ -245,6 +254,31 @@ void _initCategories() {
   // Data Source
   sl.registerLazySingleton<CategoriesRemoteDataSource>(
     () => CategoriesRemoteDataSourceImpl(api: sl()),
+  );
+}
+
+// Employees
+
+void _initEmployees() {
+  // Cubit
+  sl.registerFactory(() => AddEmployeeCubit(addEmployeeUseCase: sl()));
+  sl.registerFactory(() => EmployeesCubit(getEmployeesUseCase: sl()));
+
+  // Use Case
+  sl.registerLazySingleton(() => AddEmployeeUseCase(repository: sl()));
+  sl.registerLazySingleton(() => GetEmployeesUseCase(repository: sl()));
+
+  // Repository
+  sl.registerLazySingleton<EmployeesRepo>(
+    () => EmployeesRepoImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
+
+  // Data Source
+  sl.registerLazySingleton<EmployeesRemoteDataSource>(
+    () => EmployeesRemoteDataSourceImpl(api: sl()),
   );
 }
 
