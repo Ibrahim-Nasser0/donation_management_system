@@ -4,6 +4,7 @@ import 'package:donation_management_system/features/employees/presentation/view/
 import 'package:donation_management_system/features/employees/presentation/view/widgets/employees_view_body.dart';
 import 'package:donation_management_system/features/employees/presentation/view/widgets/add_new_employee.dart';
 import 'package:donation_management_system/features/employees/presentation/view_model/add_employee_cubit/add_employee_cubit.dart';
+import 'package:donation_management_system/features/employees/presentation/view_model/employee_stats_cubit/employee_stats_cubit.dart';
 import 'package:donation_management_system/features/employees/presentation/view_model/employees_cubit/employees_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -19,6 +20,9 @@ class EmployeesView extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => sl<EmployeesCubit>(),
+        ),
+        BlocProvider(
+          create: (context) => sl<EmployeeStatsCubit>()..getEmployeeKpis(),
         ),
       ],
       child: Scaffold(

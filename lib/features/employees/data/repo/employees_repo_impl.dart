@@ -5,6 +5,7 @@ import 'package:donation_management_system/core/network/network_info.dart';
 import 'package:donation_management_system/features/employees/data/data_source/employees_remote_data_source.dart';
 import 'package:donation_management_system/features/employees/domain/entity/add_employee_params.dart';
 import 'package:donation_management_system/features/employees/domain/entity/employee_entity.dart';
+import 'package:donation_management_system/features/employees/domain/entity/employee_kpis_entity.dart';
 import 'package:donation_management_system/features/employees/domain/repo/employees_repo.dart';
 
 class EmployeesRepoImpl implements EmployeesRepo {
@@ -36,8 +37,24 @@ class EmployeesRepoImpl implements EmployeesRepo {
   Future<Either<Failure, List<EmployeeEntity>>> getEmployees() async {
     if (await networkInfo.isConnected) {
       try {
-        final result = await remoteDataSource.getEmployees();
-        return Right(result);
+        final response = await remoteDataSource.getEmployees();
+        return Right(response);
+      } on ServerException catch (e) {
+        return Left(ServerFailure(message: e.message, code: e.statusCode));
+      } catch (e) {
+        return const Left(UnknownFailure());
+      }
+    } else {
+      return const Left(NetworkFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, EmployeeKpisEntity>> getEmployeeKpis() async {
+    if (await networkInfo.isConnected) {
+      try {
+        final response = await remoteDataSource.getEmployeeKpis();
+        return Right(response);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message, code: e.statusCode));
       } catch (e) {
