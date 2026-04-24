@@ -1,37 +1,42 @@
+import 'package:donation_management_system/core/di/injection_container.dart';
 import 'package:donation_management_system/core/widgets/widgets.dart';
 import 'package:donation_management_system/features/distributions/presentation/view/widgets/add_new_distribution.dart';
 import 'package:donation_management_system/features/distributions/presentation/view/widgets/dist_table.dart';
 import 'package:donation_management_system/features/distributions/presentation/view/widgets/distributin_kpis_cards.dart';
+import 'package:donation_management_system/features/distributions/presentation/view_model/distribution_stats_cubit/distribution_stats_cubit.dart';
 import 'package:donation_management_system/features/donations/presentation/view/widgets/pagination.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DistributionView extends StatelessWidget {
   const DistributionView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
-        child: ListView(
-          children: [
-            Text('Distributions Management', style: AppTypography.h1),
-            Gap(5.h),
-            Row(
-              children: [
-                Text(
-                  'Manage your donor database, track contributions, and maintain relationships with\nindividuals and corporate partners.',
-                  style: AppTypography.bodyMedium,
-                ),
-                const Spacer(),
-                const AddNewDistribution(),
-              ],
-            ),
-            Gap(20.h),
-            const DistributionKPIsCards(),
-            Gap(20.h),
-            const DistribtionViewBody(),
-          ],
+    return BlocProvider(
+      create: (context) => sl<DistributionStatsCubit>()..getDistributionKpis(),
+      child: Scaffold(
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
+          child: ListView(
+            children: [
+              Text('Distributions Management', style: AppTypography.h1),
+              Gap(5.h),
+              Row(
+                children: [
+                  Text(
+                    'Manage your donor database, track contributions, and maintain relationships with\nindividuals and corporate partners.',
+                    style: AppTypography.bodyMedium,
+                  ),
+                  const Spacer(),
+                  const AddNewDistribution(),
+                ],
+              ),
+              Gap(20.h),
+              const DistributionKPIsCards(),
+              Gap(20.h),
+              const DistribtionViewBody(),
+            ],
+          ),
         ),
       ),
     );
