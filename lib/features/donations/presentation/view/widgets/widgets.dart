@@ -1,4 +1,5 @@
-export 'stat_card.dart';
+export '../../../../../core/widgets/stat_card.dart';
+export '../../../../../core/widgets/status_badge.dart';
 export '../../../../../core/widgets/page_header.dart';
 export '../../../../../core/widgets/filter_chips.dart';
 export 'donations_table.dart';
@@ -9,3 +10,6 @@ export 'campaign_goal_card.dart';
 export 'donations_table_header_actions.dart';
 export 'donations_stats_row.dart';
 export 'donations_main_content.dart';
+export 'donations_filters_bar.dart';
+export 'donor_autocomplete_field.dart';
+export 'category_chips_field.dart';

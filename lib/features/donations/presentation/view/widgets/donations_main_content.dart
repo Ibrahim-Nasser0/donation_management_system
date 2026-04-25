@@ -1,13 +1,16 @@
-import 'package:donation_management_system/features/categories/presentation/view_model/categories_bloc/categories_bloc.dart';
-import 'package:donation_management_system/features/categories/presentation/view_model/categories_bloc/categories_state.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:donation_management_system/core/widgets/shimmer_loading.dart';
 import 'package:donation_management_system/features/donations/presentation/view_model/donations_cubit/donations_cubit.dart';
 import 'package:donation_management_system/features/donations/presentation/view_model/donations_cubit/donations_state.dart';
+import 'package:donation_management_system/features/donations/presentation/view/widgets/donations_filters_bar.dart';
+import 'package:donation_management_system/features/donations/presentation/view/widgets/donations_table.dart';
+import 'package:donation_management_system/features/donations/presentation/view/widgets/campaign_goal_card.dart';
+import 'package:donation_management_system/features/donations/presentation/view/widgets/pagination.dart';
+import 'package:donation_management_system/features/donations/presentation/view/widgets/record_donation_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'donations_table.dart';
-import 'widgets.dart' as common;
 
 class DonationsMainContent extends StatefulWidget {
   const DonationsMainContent({super.key});
@@ -36,91 +39,61 @@ class _DonationsMainContentState extends State<DonationsMainContent> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          flex: 3,
-          child: _buildTableSection(),
-        ),
+        Expanded(flex: 3, child: FadeInLeft(duration: const Duration(milliseconds: 500), child: _TableSection(searchController: _searchController))),
         Gap(24.w),
-        Expanded(
-          flex: 1,
-          child: _buildSidebar(),
-        ),
+        Expanded(flex: 1, child: FadeInRight(duration: const Duration(milliseconds: 500), child: _Sidebar())),
       ],
     );
   }
+}
 
-  Widget _buildTableSection() {
+class _TableSection extends StatelessWidget {
+  final TextEditingController searchController;
+  const _TableSection({required this.searchController});
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<DonationsCubit, DonationsState>(
       builder: (context, state) {
-        if (state is DonationsLoading) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (state is DonationsLoaded) {
+        if (state is DonationsLoading) return const ShimmerTable(rowCount: 8);
+        if (state is DonationsError) return Center(child: Text(state.message));
+        if (state is DonationsLoaded) {
           return Column(
             children: [
-              _buildFilters(context, state),
+              DonationsFiltersBar(searchController: searchController, state: state),
               Gap(24.h),
               DonationsTable(donations: state.currentPageDonations),
               Gap(16.h),
-              _buildPagination(context, state),
+              Pagination(
+                currentPage: state.currentPage,
+                totalItems: state.totalCount,
+                itemsPerPage: 10,
+                onPreviousPressed: state.currentPage > 1
+                    ? () => context.read<DonationsCubit>().changePage(state.currentPage - 1)
+                    : null,
+                onNextPressed: state.currentPage < state.totalPages
+                    ? () => context.read<DonationsCubit>().changePage(state.currentPage + 1)
+                    : null,
+              ),
             ],
           );
-        } else if (state is DonationsError) {
-          return Center(child: Text(state.message));
         }
-        return const SizedBox();
+        return const SizedBox.shrink();
       },
     );
   }
+}
 
-  Widget _buildFilters(BuildContext context, DonationsLoaded state) {
-    return BlocBuilder<CategoriesBloc, CategoriesState>(
-      builder: (context, categoriesState) {
-        List<String> categories = ['All'];
-        if (categoriesState is CategoriesLoaded) {
-          categories.addAll(categoriesState.masterCategories.map((e) => e.type));
-        }
+class _Sidebar extends StatelessWidget {
+  const _Sidebar();
 
-        return common.FilterChips(
-          hintText: 'Search donations ...',
-          filters: categories,
-          selectedFilter: state.selectedCategory ?? 'All',
-          onFilterSelected: (filter) {
-            context.read<DonationsCubit>().filterDonations(
-                  category: filter,
-                );
-          },
-          searchController: _searchController,
-          onSearchChanged: (value) {
-            context.read<DonationsCubit>().filterDonations(
-                  query: value,
-                );
-          },
-          onSortPressed: () {},
-        );
-      },
-    );
-  }
-
-  Widget _buildPagination(BuildContext context, DonationsLoaded state) {
-    return common.Pagination(
-      currentPage: state.currentPage,
-      totalItems: state.totalCount,
-      itemsPerPage: 10,
-      onPreviousPressed: state.currentPage > 1
-          ? () => context.read<DonationsCubit>().changePage(state.currentPage - 1)
-          : null,
-      onNextPressed: state.currentPage < state.totalPages
-          ? () => context.read<DonationsCubit>().changePage(state.currentPage + 1)
-          : null,
-    );
-  }
-
-  Widget _buildSidebar() {
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
-        common.RecordDonationForm(onConfirmPressed: () {}),
+        RecordDonationForm(onConfirmPressed: () {}),
         Gap(20.h),
-        common.CampaignGoalCard(
+        const CampaignGoalCard(
           goalAmount: '\$100k',
           currentAmount: '\$45,200',
           description: 'Help us reach our goal to support more families in need.',

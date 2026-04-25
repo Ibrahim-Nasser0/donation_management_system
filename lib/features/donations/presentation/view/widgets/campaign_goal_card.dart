@@ -28,81 +28,77 @@ class CampaignGoalCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Campaign Goal',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
+          Text('Campaign Goal',
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: Colors.white)),
           Gap(16.h),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8.r),
-            child: LinearProgressIndicator(
-              value: progress,
-              backgroundColor: Colors.white.withOpacity(0.2),
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-              minHeight: 10.h,
-            ),
-          ),
+          _AnimatedProgressBar(progress: progress),
           Gap(12.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Current',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: Colors.white.withOpacity(0.7),
-                    ),
-                  ),
-                  Text(
-                    currentAmount,
-                    style: TextStyle(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'Goal',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: Colors.white.withOpacity(0.7),
-                    ),
-                  ),
-                  Text(
-                    goalAmount,
-                    style: TextStyle(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          _AmountRow(currentAmount: currentAmount, goalAmount: goalAmount),
           Gap(16.h),
           Text(
             description,
-            style: TextStyle(
-              fontSize: 13.sp,
-              color: Colors.white.withOpacity(0.7),
-              height: 1.4,
-            ),
+            style: TextStyle(fontSize: 13.sp, color: Colors.white.withOpacity(0.7), height: 1.4),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AnimatedProgressBar extends StatelessWidget {
+  final double progress;
+  const _AnimatedProgressBar({required this.progress});
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: progress),
+      duration: const Duration(milliseconds: 1000),
+      curve: Curves.easeOut,
+      builder: (_, value, _) => ClipRRect(
+        borderRadius: BorderRadius.circular(8.r),
+        child: LinearProgressIndicator(
+          value: value,
+          backgroundColor: Colors.white.withOpacity(0.2),
+          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+          minHeight: 10.h,
+        ),
+      ),
+    );
+  }
+}
+
+class _AmountRow extends StatelessWidget {
+  final String currentAmount;
+  final String goalAmount;
+  const _AmountRow({required this.currentAmount, required this.goalAmount});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _AmountLabel(label: 'Current', value: currentAmount, crossAxis: CrossAxisAlignment.start),
+        _AmountLabel(label: 'Goal', value: goalAmount, crossAxis: CrossAxisAlignment.end),
+      ],
+    );
+  }
+}
+
+class _AmountLabel extends StatelessWidget {
+  final String label;
+  final String value;
+  final CrossAxisAlignment crossAxis;
+  const _AmountLabel({required this.label, required this.value, required this.crossAxis});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: crossAxis,
+      children: [
+        Text(label, style: TextStyle(fontSize: 12.sp, color: Colors.white.withOpacity(0.7))),
+        Text(value, style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Colors.white)),
+      ],
     );
   }
 }

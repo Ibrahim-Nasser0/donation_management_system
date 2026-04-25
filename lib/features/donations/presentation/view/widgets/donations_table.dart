@@ -1,9 +1,10 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:donation_management_system/core/theme/colors.dart';
 import 'package:donation_management_system/core/theme/typography.dart';
 import 'package:donation_management_system/features/donations/domain/entity/donation_entity.dart';
+import 'package:donation_management_system/features/donations/presentation/view/widgets/donation_table_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'donation_table_row.dart';
 
 class DonationsTable extends StatelessWidget {
   final List<Donation> donations;
@@ -22,22 +23,27 @@ class DonationsTable extends StatelessWidget {
         children: [
           const _DonationsTableHeader(),
           if (donations.isEmpty)
-            _buildEmptyState()
+            _EmptyState()
           else
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: donations.length,
-              itemBuilder: (context, index) {
-                return DonationTableRow(donation: donations[index]);
-              },
+              itemBuilder: (_, i) => FadeInUp(
+                delay: Duration(milliseconds: i * 50),
+                duration: const Duration(milliseconds: 300),
+                child: DonationTableRow(donation: donations[i]),
+              ),
             ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildEmptyState() {
+class _EmptyState extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(32.r),
       child: const Text('No donations found matching your criteria'),
@@ -73,14 +79,9 @@ class _DonationsTableHeader extends StatelessWidget {
   Widget _headerCell(String text, {double? width, TextAlign? textAlign}) {
     return SizedBox(
       width: width,
-      child: Text(
-        text,
-        textAlign: textAlign,
-        style: AppTypography.bodyMedium.copyWith(
-          fontWeight: FontWeight.w600,
-          color: AppColors.textSecondary,
-        ),
-      ),
+      child: Text(text,
+          textAlign: textAlign,
+          style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
     );
   }
 }
