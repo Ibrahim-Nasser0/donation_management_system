@@ -4,7 +4,7 @@ import 'package:donation_management_system/features/categories/presentation/view
 import 'package:donation_management_system/features/categories/presentation/view_model/categories_bloc/categories_state.dart';
 import 'package:donation_management_system/features/categories/presentation/view/widgets/category_data_row.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/material.dart';
+
 
 class CategoriesTable extends StatelessWidget {
   const CategoriesTable({super.key});

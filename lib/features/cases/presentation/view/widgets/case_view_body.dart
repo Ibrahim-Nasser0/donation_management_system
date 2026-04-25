@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:donation_management_system/core/widgets/widgets.dart';
 import 'package:donation_management_system/features/cases/presentation/view/widgets/cases_table.dart';
 import 'package:donation_management_system/features/cases/presentation/view_model/cases_cubit/cases_cubit.dart';
@@ -30,46 +31,41 @@ class _CasesViewBodyState extends State<CasesViewBody> {
         } else if (state is CasesError) {
           return Center(child: Text(state.message));
         } else if (state is CasesLoaded) {
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 3,
-                child: Column(
-                  children: [
-                    FilterChips(
-                      hintText: 'Search Cases...',
-                      filters: const [], // Filters can be added later if needed
-                      selectedFilter: 'All',
-                      onFilterSelected: (filter) {},
-                      searchController: _searchController,
-                      onSearchChanged: (value) {
-                        context.read<CasesCubit>().searchCases(value);
-                      },
-                      onSortPressed: () {},
-                    ),
-                    Gap(16.h),
-                    CasesTable(cases: state.currentPageCases),
-                    Gap(16.h),
-                    Pagination(
-                      currentPage: state.currentPage,
-                      totalItems: state.totalCount,
-                      itemsPerPage: 10,
-                      onPreviousPressed: state.currentPage > 1
-                          ? () => context
-                              .read<CasesCubit>()
-                              .changePage(state.currentPage - 1)
-                          : null,
-                      onNextPressed: state.currentPage < state.totalPages
-                          ? () => context
-                              .read<CasesCubit>()
-                              .changePage(state.currentPage + 1)
-                          : null,
-                    ),
-                  ],
+          return FadeInLeft(
+            duration: const Duration(milliseconds: 500),
+            child: Column(
+              children: [
+                FilterChips(
+                  hintText: 'Search Cases...',
+                  filters: const [],
+                  selectedFilter: 'All',
+                  onFilterSelected: (filter) {},
+                  searchController: _searchController,
+                  onSearchChanged: (value) {
+                    context.read<CasesCubit>().searchCases(value);
+                  },
+                  onSortPressed: () {},
                 ),
-              ),
-            ],
+                Gap(16.h),
+                CasesTable(cases: state.currentPageCases),
+                Gap(16.h),
+                Pagination(
+                  currentPage: state.currentPage,
+                  totalItems: state.totalCount,
+                  itemsPerPage: 10,
+                  onPreviousPressed: state.currentPage > 1
+                      ? () => context
+                          .read<CasesCubit>()
+                          .changePage(state.currentPage - 1)
+                      : null,
+                  onNextPressed: state.currentPage < state.totalPages
+                      ? () => context
+                          .read<CasesCubit>()
+                          .changePage(state.currentPage + 1)
+                      : null,
+                ),
+              ],
+            ),
           );
         }
         return const SizedBox();

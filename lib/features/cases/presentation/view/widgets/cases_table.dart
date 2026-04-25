@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:donation_management_system/core/widgets/custom_table.dart';
 import 'package:donation_management_system/core/widgets/table_header.dart';
 import 'package:donation_management_system/features/cases/domain/entity/case_entity.dart';
@@ -23,7 +24,14 @@ class CasesTable extends StatelessWidget {
     return CustomTable(
       headerCells: headerCells,
       dataRow: cases,
-      itemBuilder: (item) => CaseDataRow(caseEntity: item),
+      itemBuilder: (item) {
+        final index = cases.indexOf(item);
+        return FadeInUp(
+          delay: Duration(milliseconds: index * 50),
+          duration: const Duration(milliseconds: 500),
+          child: CaseDataRow(caseEntity: item),
+        );
+      },
     );
   }
 }
