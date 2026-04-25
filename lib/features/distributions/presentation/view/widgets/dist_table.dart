@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:donation_management_system/core/widgets/widgets.dart';
 import 'package:donation_management_system/features/distributions/domain/entity/distribution_entity.dart';
 
@@ -21,7 +22,14 @@ class DistributionTable extends StatelessWidget {
     return CustomTable(
       headerCells: headerCells,
       dataRow: distributions,
-      itemBuilder: (item) => DistributionDataRow(distribution: item),
+      itemBuilder: (item) {
+        final index = distributions.indexOf(item);
+        return FadeInUp(
+          delay: Duration(milliseconds: index * 50),
+          duration: const Duration(milliseconds: 500),
+          child: DistributionDataRow(distribution: item),
+        );
+      },
     );
   }
 }

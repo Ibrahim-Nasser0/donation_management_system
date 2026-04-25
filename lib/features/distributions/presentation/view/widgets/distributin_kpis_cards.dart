@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:donation_management_system/core/widgets/widgets.dart';
 import 'package:donation_management_system/features/distributions/presentation/view_model/distribution_stats_cubit/distribution_stats_cubit.dart';
 import 'package:donation_management_system/features/distributions/presentation/view_model/distribution_stats_cubit/distribution_stats_state.dart';
@@ -11,46 +12,32 @@ class DistributionKPIsCards extends StatelessWidget {
     return BlocBuilder<DistributionStatsCubit, DistributionStatsState>(
       builder: (context, state) {
         if (state is DistributionStatsLoaded) {
-          final kpis = state.kpis;
+          final kpis = [
+            (title: 'Total Distributed', value: '${state.kpis.totalDistributed.toStringAsFixed(0)} EGP', icon: Icons.attach_money_rounded),
+            (title: 'Cases Served', value: '${state.kpis.casesServed}', icon: Icons.people_outline),
+            (title: 'Avg Distribution', value: '${state.kpis.avgDistribution.toStringAsFixed(0)} EGP', icon: Icons.analytics_outlined),
+            (title: 'Remaining Balance', value: '${state.kpis.remainingBalance.toStringAsFixed(0)} EGP', icon: Icons.account_balance_wallet_outlined),
+          ];
+
           return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: KPICard(
-                  title: 'Total Distributed',
-                  value: '${kpis.totalDistributed.toStringAsFixed(2)} EGP',
-                  logo: 'assets/icons/funds distributed.png',
-                  icon: Icons.attach_money_rounded,
+            children: List.generate(kpis.length, (index) {
+              final kpi = kpis[index];
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: index < kpis.length - 1 ? 16.w : 0),
+                  child: FadeInUp(
+                    delay: Duration(milliseconds: index * 100),
+                    duration: const Duration(milliseconds: 500),
+                    child: StatCard(
+                      title: kpi.title,
+                      value: kpi.value,
+                      icon: kpi.icon,
+                      percentageChange: 0,
+                    ),
+                  ),
                 ),
-              ),
-              Gap(16.w),
-              Expanded(
-                child: KPICard(
-                  title: 'Cases Served',
-                  value: '${kpis.casesServed}',
-                  logo: 'assets/icons/active cases.png',
-                  icon: Icons.people_outline,
-                ),
-              ),
-              Gap(16.w),
-              Expanded(
-                child: KPICard(
-                  title: 'Avg Distribution',
-                  value: '${kpis.avgDistribution.toStringAsFixed(2)} EGP',
-                  logo: 'assets/icons/funds distributed.png',
-                  icon: Icons.analytics_outlined,
-                ),
-              ),
-              Gap(16.w),
-              Expanded(
-                child: KPICard(
-                  title: 'Remaining Balance',
-                  value: '${kpis.remainingBalance.toStringAsFixed(2)} EGP',
-                  logo: 'assets/icons/Donors.png',
-                  icon: Icons.account_balance_wallet_outlined,
-                ),
-              ),
-            ],
+              );
+            }),
           );
         }
 
