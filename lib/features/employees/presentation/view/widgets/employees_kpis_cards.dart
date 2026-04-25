@@ -21,10 +21,30 @@ class EmployeesKPIsCards extends StatelessWidget {
 
         if (state is EmployeeStatsLoaded) {
           final kpis = [
-            (title: 'Total Employees', value: state.kpis.totalEmployees.toString(), icon: Icons.groups_outlined),
-            (title: 'Active Supervisors', value: state.kpis.activeSupervisors.toString(), icon: Icons.check_circle_outline_rounded),
-            (title: 'Admins', value: state.kpis.adminCount.toString(), icon: Icons.admin_panel_settings_outlined),
-            (title: 'Activity Rate', value: '${(state.kpis.monthlyActivityRate * 100).toStringAsFixed(1)}%', icon: Icons.trending_up_rounded),
+            (
+              title: 'Total Employees',
+              value: state.kpis.totalEmployees.toString(),
+              icon: Icons.groups_outlined,
+              color: const Color(0xFF6366F1)
+            ),
+            (
+              title: 'Active Supervisors',
+              value: state.kpis.activeSupervisors.toString(),
+              icon: Icons.check_circle_outline_rounded,
+              color: const Color(0xFF10B981)
+            ),
+            (
+              title: 'Admins',
+              value: state.kpis.adminCount.toString(),
+              icon: Icons.admin_panel_settings_outlined,
+              color: const Color(0xFFF59E0B)
+            ),
+            (
+              title: 'Activity Rate',
+              value: '${(state.kpis.monthlyActivityRate * 100).toStringAsFixed(1)}%',
+              icon: Icons.trending_up_rounded,
+              color: const Color(0xFF3B82F6)
+            ),
           ];
 
           return Row(
@@ -40,6 +60,7 @@ class EmployeesKPIsCards extends StatelessWidget {
                       title: kpi.title,
                       value: kpi.value,
                       icon: kpi.icon,
+                      iconColor: kpi.color,
                       percentageChange: 0,
                     ),
                   ),
