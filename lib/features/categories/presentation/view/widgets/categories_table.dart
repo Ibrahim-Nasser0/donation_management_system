@@ -1,8 +1,10 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:donation_management_system/core/widgets/widgets.dart';
 import 'package:donation_management_system/features/categories/presentation/view_model/categories_bloc/categories_bloc.dart';
 import 'package:donation_management_system/features/categories/presentation/view_model/categories_bloc/categories_state.dart';
 import 'package:donation_management_system/features/categories/presentation/view/widgets/category_data_row.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
 
 class CategoriesTable extends StatelessWidget {
   const CategoriesTable({super.key});
@@ -50,10 +52,18 @@ class CategoriesTable extends StatelessWidget {
             );
           }
 
+          final categories = state.currentPageCategories;
           return CustomTable(
             headerCells: _headers,
-            dataRow: state.currentPageCategories,
-            itemBuilder: (item) => CategoryDataRow(category: item),
+            dataRow: categories,
+            itemBuilder: (item) {
+              final i = categories.indexOf(item);
+              return FadeInUp(
+                delay: Duration(milliseconds: i * 40),
+                duration: const Duration(milliseconds: 400),
+                child: CategoryDataRow(category: item),
+              );
+            },
           );
         }
 

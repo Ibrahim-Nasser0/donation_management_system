@@ -23,8 +23,7 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
   void initState() {
     super.initState();
     _typeController = TextEditingController(text: widget.category?.type);
-    _descriptionController =
-        TextEditingController(text: widget.category?.description);
+    _descriptionController = TextEditingController(text: widget.category?.description);
   }
 
   @override
@@ -42,13 +41,25 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
       listener: _onStateChanged,
       builder: (context, state) {
         return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          title: _buildTitle(context, isEdit),
-          content: _buildContent(context),
-          actionsPadding:
-              const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          actions: _buildActions(context, state, isEdit),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          title: _Title(isEdit: isEdit),
+          content: _Fields(
+            formKey: _formKey,
+            typeController: _typeController,
+            descriptionController: _descriptionController,
+          ),
+          actionsPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+            ),
+            _SubmitButton(
+              isLoading: state is CategoryActionLoading,
+              isEdit: isEdit,
+              onPressed: () => _submit(context),
+            ),
+          ],
         );
       },
     );
@@ -61,68 +72,6 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
     } else if (state is CategoryActionError) {
       context.showErrorSnackBar(state.message);
     }
-  }
-
-  Widget _buildTitle(BuildContext context, bool isEdit) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(isEdit ? 'Edit Category' : 'Add New Category',
-            style: AppTypography.h2.copyWith(fontSize: 20)),
-        IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.close, color: Colors.grey),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildContent(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.4,
-      child: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildInputField("Category Type", "e.g. Health Support",
-                  controller: _typeController),
-              Gap(20.h),
-              _buildInputField("Description", "Enter category description",
-                  controller: _descriptionController, maxLines: 3),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  List<Widget> _buildActions(
-      BuildContext context, CategoriesState state, bool isEdit) {
-    final bool isLoading = state is CategoryActionLoading;
-    return [
-      TextButton(
-        onPressed: () => Navigator.pop(context),
-        child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
-      ),
-      ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF2D7D6D),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-        onPressed: isLoading ? null : () => _submit(context),
-        child: isLoading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                    strokeWidth: 2, color: Colors.white))
-            : Text(isEdit ? "Update Category" : "Add Category",
-                style: const TextStyle(color: Colors.white)),
-      ),
-    ];
   }
 
   void _submit(BuildContext context) {
@@ -142,24 +91,87 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
       }
     }
   }
+}
 
-  Widget _buildInputField(String label, String hint,
-      {int maxLines = 1, TextEditingController? controller}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+class _Title extends StatelessWidget {
+  final bool isEdit;
+  const _Title({required this.isEdit});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-        Gap(8.h),
-        CustomTextField(
-          hint: hint,
-          maxLines: maxLines,
-          controller: controller,
-          validator: (val) => (val == null || val.trim().isEmpty)
-              ? 'Field cannot be empty'
-              : null,
-        ),
+        Text(isEdit ? 'Edit Category' : 'Add New Category', style: AppTypography.h2.copyWith(fontSize: 20.sp)),
+        IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close, color: Colors.grey)),
       ],
     );
   }
 }
+
+class _Fields extends StatelessWidget {
+  final GlobalKey<FormState> formKey;
+  final TextEditingController typeController;
+  final TextEditingController descriptionController;
+
+  const _Fields({required this.formKey, required this.typeController, required this.descriptionController});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 400.w,
+      child: SingleChildScrollView(
+        child: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              LabeledField(
+                label: 'Category Type',
+                child: CustomTextField(
+                  hint: "e.g. Health Support",
+                  controller: typeController,
+                  validator: (val) => (val?.isEmpty ?? true) ? 'Field cannot be empty' : null,
+                ),
+              ),
+              Gap(20.h),
+              LabeledField(
+                label: 'Description',
+                child: CustomTextField(
+                  hint: "Enter category description",
+                  controller: descriptionController,
+                  maxLines: 3,
+                  validator: (val) => (val?.isEmpty ?? true) ? 'Field cannot be empty' : null,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SubmitButton extends StatelessWidget {
+  final bool isLoading;
+  final bool isEdit;
+  final VoidCallback onPressed;
+
+  const _SubmitButton({required this.isLoading, required this.isEdit, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+      ),
+      onPressed: isLoading ? null : onPressed,
+      child: isLoading
+          ? SizedBox(width: 20.sp, height: 20.sp, child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+          : Text(isEdit ? "Update Category" : "Add Category", style: const TextStyle(color: Colors.white)),
+    );
+  }
+}
+

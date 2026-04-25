@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:donation_management_system/core/widgets/widgets.dart';
 import 'package:donation_management_system/features/categories/presentation/view/widgets/categories_table.dart';
 import 'package:donation_management_system/features/categories/presentation/view_model/categories_bloc/categories_bloc.dart';
@@ -49,37 +50,40 @@ class _CategoriesViewBodyState extends State<CategoriesViewBody> {
       children: [
         Expanded(
           flex: 3,
-          child: Column(
-            children: [
-              FilterChips(
-                hintText: 'Search categories...',
-                searchController: _searchController,
-                onSearchChanged: (val) {
-                  context
-                      .read<CategoriesBloc>()
-                      .add(FilterCategoriesEvent(query: val));
-                },
-                onSortPressed: () {},
-              ),
-              Gap(16.h),
-              const CategoriesTable(),
-              Gap(16.h),
-              Pagination(
-                currentPage: state.currentPage,
-                totalItems: state.totalCount,
-                itemsPerPage: 5,
-                onPreviousPressed: state.currentPage > 1
-                    ? () => context
+          child: FadeInLeft(
+            duration: const Duration(milliseconds: 500),
+            child: Column(
+              children: [
+                FilterChips(
+                  hintText: 'Search categories...',
+                  searchController: _searchController,
+                  onSearchChanged: (val) {
+                    context
                         .read<CategoriesBloc>()
-                        .add(ChangePageEvent(state.currentPage - 1))
-                    : null,
-                onNextPressed: state.currentPage < state.totalPages
-                    ? () => context
-                        .read<CategoriesBloc>()
-                        .add(ChangePageEvent(state.currentPage + 1))
-                    : null,
-              ),
-            ],
+                        .add(FilterCategoriesEvent(query: val));
+                  },
+                  onSortPressed: () {},
+                ),
+                Gap(16.h),
+                const CategoriesTable(),
+                Gap(16.h),
+                Pagination(
+                  currentPage: state.currentPage,
+                  totalItems: state.totalCount,
+                  itemsPerPage: 5,
+                  onPreviousPressed: state.currentPage > 1
+                      ? () => context
+                          .read<CategoriesBloc>()
+                          .add(ChangePageEvent(state.currentPage - 1))
+                      : null,
+                  onNextPressed: state.currentPage < state.totalPages
+                      ? () => context
+                          .read<CategoriesBloc>()
+                          .add(ChangePageEvent(state.currentPage + 1))
+                      : null,
+                ),
+              ],
+            ),
           ),
         ),
       ],
