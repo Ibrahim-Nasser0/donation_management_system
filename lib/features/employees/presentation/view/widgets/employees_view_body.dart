@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:donation_management_system/core/widgets/widgets.dart';
 import 'package:donation_management_system/features/donations/presentation/view/widgets/pagination.dart';
 import 'package:donation_management_system/features/employees/presentation/view/widgets/employees_table.dart';
@@ -37,47 +38,50 @@ class _EmployeesViewBodyState extends State<EmployeesViewBody> {
         }
 
         if (state is EmployeesError) {
-          return Center(child: Text(state.message, style: TextStyle(color: Colors.red)));
+          return Center(child: Text(state.message, style: const TextStyle(color: Colors.red)));
         }
 
         if (state is EmployeesLoaded) {
           final displayedEmployees = state.currentPageEmployees;
           final totalItems = state.totalCount;
           
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FilterChips(
-                filters: const ['All', 'Admin', 'Supervisor', 'Employee'],
-                selectedFilter: state.selectedRole,
-                onFilterSelected: (role) {
-                  context.read<EmployeesCubit>().filterEmployees(role: role);
-                },
-                searchController: _searchController,
-                onSearchChanged: (query) {
-                  context.read<EmployeesCubit>().filterEmployees(query: query);
-                },
-                hintText: 'Search employees...',
-                onSortPressed: () {},
-              ),
-              Gap(24.h),
-              EmployeesTable(employees: displayedEmployees),
-              Gap(16.h),
-              if (totalItems > 0) ...[
-                Pagination(
-                  currentPage: state.currentPage,
-                  totalItems: totalItems,
-                  itemsPerPage: _itemsPerPage,
-                  onPreviousPressed: () {
-                    context.read<EmployeesCubit>().changePage(state.currentPage - 1);
+          return FadeInLeft(
+            duration: const Duration(milliseconds: 500),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FilterChips(
+                  filters: const ['All', 'Admin', 'Supervisor', 'Employee'],
+                  selectedFilter: state.selectedRole,
+                  onFilterSelected: (role) {
+                    context.read<EmployeesCubit>().filterEmployees(role: role);
                   },
-                  onNextPressed: () {
-                    context.read<EmployeesCubit>().changePage(state.currentPage + 1);
+                  searchController: _searchController,
+                  onSearchChanged: (query) {
+                    context.read<EmployeesCubit>().filterEmployees(query: query);
                   },
+                  hintText: 'Search employees...',
+                  onSortPressed: () {},
                 ),
-              ] else
-                const Center(child: Text("No employees found.")),
-            ],
+                Gap(24.h),
+                EmployeesTable(employees: displayedEmployees),
+                Gap(16.h),
+                if (totalItems > 0) ...[
+                  Pagination(
+                    currentPage: state.currentPage,
+                    totalItems: totalItems,
+                    itemsPerPage: _itemsPerPage,
+                    onPreviousPressed: state.currentPage > 1
+                        ? () => context.read<EmployeesCubit>().changePage(state.currentPage - 1)
+                        : null,
+                    onNextPressed: state.currentPage < state.totalPages
+                        ? () => context.read<EmployeesCubit>().changePage(state.currentPage + 1)
+                        : null,
+                  ),
+                ] else
+                  const Center(child: Text("No employees found.")),
+              ],
+            ),
           );
         }
 

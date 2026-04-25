@@ -1,7 +1,7 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:donation_management_system/core/widgets/widgets.dart';
 import 'package:donation_management_system/features/employees/presentation/view_model/employee_stats_cubit/employee_stats_cubit.dart';
 import 'package:donation_management_system/features/employees/presentation/view_model/employee_stats_cubit/employee_stats_state.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EmployeesKPIsCards extends StatelessWidget {
@@ -16,62 +16,36 @@ class EmployeesKPIsCards extends StatelessWidget {
         }
 
         if (state is EmployeeStatsError) {
-          return Center(
-            child: Text(state.message, style: TextStyle(color: Colors.red)),
-          );
+          return Center(child: Text(state.message, style: const TextStyle(color: Colors.red)));
         }
 
         if (state is EmployeeStatsLoaded) {
-          final kpis = state.kpis;
+          final kpis = [
+            (title: 'Total Employees', value: state.kpis.totalEmployees.toString(), icon: Icons.groups_outlined),
+            (title: 'Active Supervisors', value: state.kpis.activeSupervisors.toString(), icon: Icons.check_circle_outline_rounded),
+            (title: 'Admins', value: state.kpis.adminCount.toString(), icon: Icons.admin_panel_settings_outlined),
+            (title: 'Activity Rate', value: '${(state.kpis.monthlyActivityRate * 100).toStringAsFixed(1)}%', icon: Icons.trending_up_rounded),
+          ];
+
           return Row(
-            children: [
-              Expanded(
-                child: KPICard(
-                  title: 'Total Employees',
-                  value: kpis.totalEmployees.toString(),
-                  logo: 'assets/icons/Donors.png',
-                  icon: Icons.groups_outlined,
-                  vsLastMonth: kpis.monthlyActivityRate * 100,
+            children: List.generate(kpis.length, (index) {
+              final kpi = kpis[index];
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(right: index < kpis.length - 1 ? 16.w : 0),
+                  child: FadeInUp(
+                    delay: Duration(milliseconds: index * 100),
+                    duration: const Duration(milliseconds: 500),
+                    child: StatCard(
+                      title: kpi.title,
+                      value: kpi.value,
+                      icon: kpi.icon,
+                      percentageChange: 0,
+                    ),
+                  ),
                 ),
-              ),
-
-              const SizedBox(width: 16),
-
-              Expanded(
-                child: KPICard(
-                  title: 'Active Supervisors',
-                  value: kpis.activeSupervisors.toString(),
-                  logo: 'assets/icons/active cases.png',
-                  icon: Icons.check_circle_outline_rounded,
-                  vsLastMonth: kpis.monthlyActivityRate * 100,
-                ),
-              ),
-
-              const SizedBox(width: 16),
-
-              Expanded(
-                child: KPICard(
-                  title: 'Admins',
-                  value: kpis.adminCount.toString(),
-                  logo: 'assets/icons/funds distributed.png',
-                  icon: Icons.admin_panel_settings_outlined,
-                  vsLastMonth: kpis.monthlyActivityRate * 100,
-                ),
-              ),
-
-              const SizedBox(width: 16),
-
-              Expanded(
-                child: KPICard(
-                  title: 'Activity Rate',
-                  value:
-                      '${(kpis.monthlyActivityRate * 100).toStringAsFixed(1)}%',
-                  logo: 'assets/icons/funds distributed.png',
-                  icon: Icons.trending_up_rounded,
-                  vsLastMonth: kpis.monthlyActivityRate * 100,
-                ),
-              ),
-            ],
+              );
+            }),
           );
         }
 
