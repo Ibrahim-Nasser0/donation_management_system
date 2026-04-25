@@ -1,6 +1,8 @@
 import 'package:donation_management_system/core/widgets/widgets.dart';
-import 'package:donation_management_system/features/categories/data/models/category_table_model.dart';
-import 'package:donation_management_system/features/donors/presentation/view/widgets/donor_data_row.dart';
+import 'package:donation_management_system/features/categories/presentation/view_model/categories_bloc/categories_bloc.dart';
+import 'package:donation_management_system/features/categories/presentation/view_model/categories_bloc/categories_state.dart';
+import 'package:donation_management_system/features/categories/presentation/view/widgets/category_data_row.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CategoriesTable extends StatelessWidget {
   const CategoriesTable({super.key});
@@ -15,137 +17,48 @@ class CategoriesTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomTable(
-      headerCells: _headers,
-      dataRow: const [
-        CategoryTableModel(
-          name: 'Medical Aid',
-          description:
-              'Critical support for life-saving surgeries, medication supplies, and emergency clinical procedures globally.',
-          totalCases: '1,242',
-          totalDonations: '\$450,800',
-        ),
-        CategoryTableModel(
-          name: 'Education',
-          description:
-              'Funding for primary schools, digital literacy programs, and higher education scholarships for low-income students.',
-          totalCases: '894',
-          totalDonations: '\$212,150',
-        ),
-        CategoryTableModel(
-          name: 'Food Security',
-          description:
-              'Sustainable community gardens, food banks, and monthly nutrition ration programs for vulnerable communities.',
-          totalCases: '3,412',
-          totalDonations: '\$185,400',
-        ),
-        CategoryTableModel(
-          name: 'Housing',
-          description:
-              'Urban development projects and emergency shelter construction for families displaced by disasters or hardship.',
-          totalCases: '456',
-          totalDonations: '\$1,024,900',
-        ),
-        CategoryTableModel(
-          name: 'Emergency Relief',
-          description:
-              'Rapid-response kits, temporary housing, and logistics for communities affected by natural disasters.',
-          totalCases: '612',
-          totalDonations: '\$328,500',
-        ),
-      ],
-      itemBuilder: (item) => CategoryDataRow(category: item),
-    );
-  }
-}
-
-class CategoryDataRow extends StatelessWidget {
-  final CategoryTableModel category;
-
-  const CategoryDataRow({super.key, required this.category});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: AppColors.border.withOpacity(0.5)),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 18.r,
-                  backgroundColor: AppColors.primary.withOpacity(0.1),
-                  child: Text(
-                    category.name.substring(0, 1).toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ),
-                Gap(10.w),
-                Expanded(
-                  child: Text(
-                    category.name,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textPrimary,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
+    return BlocBuilder<CategoriesBloc, CategoriesState>(
+      builder: (context, state) {
+        if (state is CategoriesLoading) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(32.0),
+              child: CircularProgressIndicator(),
             ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              category.description,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
-                height: 1.35,
+          );
+        }
+
+        if (state is CategoriesError) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Text(
+                state.message,
+                style: const TextStyle(color: Colors.red),
               ),
             ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Text(
-              category.totalCases,
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
+          );
+        }
+
+        if (state is CategoriesLoaded) {
+          if (state.masterCategories.isEmpty) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: Text('No categories found.'),
               ),
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Text(
-              category.totalDonations,
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primary,
-              ),
-            ),
-          ),
-          const ActionsButtons(),
-        ],
-      ),
+            );
+          }
+
+          return CustomTable(
+            headerCells: _headers,
+            dataRow: state.currentPageCategories,
+            itemBuilder: (item) => CategoryDataRow(category: item),
+          );
+        }
+
+        return const SizedBox.shrink();
+      },
     );
   }
 }
