@@ -8,7 +8,6 @@ import 'package:donation_management_system/features/distributions/presentation/v
 import 'package:donation_management_system/features/distributions/presentation/view_model/distributions_cubit/distributions_cubit.dart';
 import 'package:donation_management_system/features/donations/domain/entity/donation_entity.dart';
 import 'package:donation_management_system/features/employees/domain/entity/employee_entity.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddDistributionDialog extends StatefulWidget {
@@ -21,6 +20,7 @@ class AddDistributionDialog extends StatefulWidget {
 class _AddDistributionDialogState extends State<AddDistributionDialog> {
   final _amountController = TextEditingController();
   final _notesController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   CaseEntity? _selectedCase;
   Donation? _selectedDonation;
@@ -79,6 +79,7 @@ class _AddDistributionDialogState extends State<AddDistributionDialog> {
 
               return SingleChildScrollView(
                 child: AddDistributionFormFields(
+                  formKey: _formKey,
                   amountController: _amountController,
                   notesController: _notesController,
                   cases: cases,
@@ -136,8 +137,10 @@ class _AddDistributionDialogState extends State<AddDistributionDialog> {
   }
 
   void _submit(BuildContext context) {
-    if (_selectedCase == null || _selectedDonation == null || _selectedEmployee == null || _amountController.text.isEmpty) {
-      context.showErrorSnackBar('Please fill all required fields');
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_selectedCase == null || _selectedDonation == null || _selectedEmployee == null) {
+      context.showErrorSnackBar('Please select Case, Donation, and Employee');
       return;
     }
 

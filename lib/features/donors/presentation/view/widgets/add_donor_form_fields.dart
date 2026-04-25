@@ -1,6 +1,7 @@
-import 'package:donation_management_system/core/utils/extensions.dart';
+
+import 'package:donation_management_system/core/utils/validators.dart';
 import 'package:donation_management_system/core/widgets/widgets.dart';
-import 'package:flutter/material.dart';
+
 
 class AddDonorFormFields extends StatelessWidget {
   final GlobalKey<FormState> formKey;
@@ -38,7 +39,7 @@ class AddDonorFormFields extends StatelessWidget {
                   child: CustomTextField(
                     hint: "Enter full name",
                     controller: nameController,
-                    validator: (val) => (val == null || val.trim().isEmpty) ? 'Please enter full name' : null,
+                    validator: (val) => Validators.minLength(val, 3, fieldName: 'Full Name'),
                   ),
                 ),
               ),
@@ -49,11 +50,7 @@ class AddDonorFormFields extends StatelessWidget {
                   child: CustomTextField(
                     hint: "example@email.com",
                     controller: emailController,
-                    validator: (val) {
-                      if (val == null || val.trim().isEmpty) return 'Please enter email';
-                      if (!val.isValidEmail) return 'Please enter a valid email';
-                      return null;
-                    },
+                    validator: Validators.email,
                   ),
                 ),
               ),
@@ -68,11 +65,7 @@ class AddDonorFormFields extends StatelessWidget {
                   child: CustomTextField(
                     hint: "+20 120 000 0000",
                     controller: phoneController,
-                    validator: (val) {
-                      if (val == null || val.trim().isEmpty) return 'Please enter phone number';
-                      if (!val.isValidPhone) return 'Please enter a valid phone number';
-                      return null;
-                    },
+                    validator: Validators.phone,
                   ),
                 ),
               ),
@@ -92,7 +85,7 @@ class AddDonorFormFields extends StatelessWidget {
               hint: "Enter full mailing address",
               controller: addressController,
               maxLines: 3,
-              validator: (val) => (val == null || val.trim().isEmpty) ? 'Please enter address' : null,
+              validator: (val) => Validators.minLength(val, 5, fieldName: 'Address'),
             ),
           ),
         ],

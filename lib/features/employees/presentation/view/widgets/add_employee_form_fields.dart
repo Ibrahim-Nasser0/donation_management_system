@@ -1,7 +1,9 @@
+import 'package:donation_management_system/core/utils/validators.dart';
 import 'package:donation_management_system/core/widgets/widgets.dart';
-import 'package:flutter/material.dart';
+
 
 class AddEmployeeFormFields extends StatelessWidget {
+  final GlobalKey<FormState> formKey;
   final TextEditingController nameController;
   final TextEditingController usernameController;
   final TextEditingController passwordController;
@@ -14,6 +16,7 @@ class AddEmployeeFormFields extends StatelessWidget {
 
   const AddEmployeeFormFields({
     super.key,
+    required this.formKey,
     required this.nameController,
     required this.usernameController,
     required this.passwordController,
@@ -27,9 +30,11 @@ class AddEmployeeFormFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Form(
+      key: formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
@@ -39,6 +44,7 @@ class AddEmployeeFormFields extends StatelessWidget {
                 child: CustomTextField(
                   hint: "Enter full name",
                   controller: nameController,
+                  validator: (val) => Validators.minLength(val, 3, fieldName: 'Full Name'),
                 ),
               ),
             ),
@@ -49,6 +55,7 @@ class AddEmployeeFormFields extends StatelessWidget {
                 child: CustomTextField(
                   hint: "e.g. sameh.r",
                   controller: usernameController,
+                  validator: Validators.username,
                 ),
               ),
             ),
@@ -63,6 +70,7 @@ class AddEmployeeFormFields extends StatelessWidget {
                 child: CustomTextField(
                   hint: "employee@example.com",
                   controller: emailController,
+                  validator: Validators.email,
                 ),
               ),
             ),
@@ -74,6 +82,7 @@ class AddEmployeeFormFields extends StatelessWidget {
                   hint: isEditing ? "Leave blank to keep current" : "Enter password",
                   controller: passwordController,
                   obscureText: true,
+                  validator: (val) => Validators.password(val, isEditing: isEditing),
                 ),
               ),
             ),
@@ -88,6 +97,7 @@ class AddEmployeeFormFields extends StatelessWidget {
                 child: CustomTextField(
                   hint: "01066665555",
                   controller: phoneController,
+                  validator: Validators.phone,
                 ),
               ),
             ),
@@ -106,10 +116,11 @@ class AddEmployeeFormFields extends StatelessWidget {
           child: CustomTextField(
             hint: "123 Street, City, State",
             controller: addressController,
+            validator: (val) => Validators.minLength(val, 5, fieldName: 'Address'),
           ),
         ),
       ],
-    );
+    ));
   }
 
   Widget _buildRoleDropdown() {

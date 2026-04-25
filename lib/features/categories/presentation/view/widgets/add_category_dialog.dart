@@ -1,4 +1,5 @@
 import 'package:donation_management_system/core/utils/extensions.dart';
+import 'package:donation_management_system/core/utils/validators.dart';
 import 'package:donation_management_system/core/widgets/widgets.dart';
 import 'package:donation_management_system/features/categories/domain/entity/category_entity.dart';
 import 'package:donation_management_system/features/categories/presentation/view_model/categories_bloc/categories_bloc.dart';
@@ -131,7 +132,7 @@ class _Fields extends StatelessWidget {
                 child: CustomTextField(
                   hint: "e.g. Health Support",
                   controller: typeController,
-                  validator: (val) => (val?.isEmpty ?? true) ? 'Field cannot be empty' : null,
+                  validator: (val) => Validators.minLength(val, 3, fieldName: 'Category Type'),
                 ),
               ),
               Gap(20.h),
@@ -141,7 +142,7 @@ class _Fields extends StatelessWidget {
                   hint: "Enter category description",
                   controller: descriptionController,
                   maxLines: 3,
-                  validator: (val) => (val?.isEmpty ?? true) ? 'Field cannot be empty' : null,
+                  validator: (val) => Validators.minLength(val, 10, fieldName: 'Description'),
                 ),
               ),
             ],

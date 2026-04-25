@@ -1,4 +1,5 @@
 import 'package:donation_management_system/core/di/injection_container.dart';
+import 'package:donation_management_system/core/utils/validators.dart';
 import 'package:donation_management_system/core/routes/routes.dart';
 import 'package:donation_management_system/core/theme/colors.dart';
 import 'package:donation_management_system/core/theme/typography.dart';
@@ -138,12 +139,7 @@ class _LoginFormState extends State<LoginForm> {
                   Icons.person_outline,
                   color: AppColors.textSecondary,
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your username';
-                  }
-                  return null;
-                },
+                validator: Validators.username,
               ),
               Gap(20.h),
               CustomTextField(
@@ -152,12 +148,7 @@ class _LoginFormState extends State<LoginForm> {
                 hint: 'Enter your password',
                 prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textSecondary),
                 obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
+                validator: (value) => Validators.password(value),
               ),
               Gap(10.h),
               SizedBox(

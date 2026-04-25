@@ -1,5 +1,6 @@
 import 'package:donation_management_system/core/di/injection_container.dart';
 import 'package:donation_management_system/core/theme/colors.dart';
+import 'package:donation_management_system/core/utils/validators.dart';
 import 'package:donation_management_system/core/widgets/labeled_field.dart';
 import 'package:donation_management_system/features/donations/presentation/view/widgets/category_chips_field.dart';
 import 'package:donation_management_system/features/donations/presentation/view/widgets/donor_autocomplete_field.dart';
@@ -21,6 +22,7 @@ class RecordDonationForm extends StatefulWidget {
 class _RecordDonationFormState extends State<RecordDonationForm> {
   final _amountCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -42,8 +44,10 @@ class _RecordDonationFormState extends State<RecordDonationForm> {
             borderRadius: BorderRadius.circular(16.r),
             border: Border.all(color: AppColors.border),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Record Donation',
                   style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
@@ -52,9 +56,10 @@ class _RecordDonationFormState extends State<RecordDonationForm> {
               Gap(16.h),
               LabeledField(
                 label: 'Amount',
-                child: TextField(
+                child: TextFormField(
                   controller: _amountCtrl,
                   keyboardType: TextInputType.number,
+                  validator: Validators.amount,
                   style: TextStyle(fontSize: 16.sp, color: AppColors.textPrimary),
                   decoration: _dec('Enter amount', Icons.attach_money),
                 ),
@@ -62,8 +67,9 @@ class _RecordDonationFormState extends State<RecordDonationForm> {
               Gap(16.h),
               LabeledField(
                 label: 'Description',
-                child: TextField(
+                child: TextFormField(
                   controller: _descCtrl,
+                  validator: (val) => Validators.minLength(val, 5, fieldName: 'Description'),
                   style: TextStyle(fontSize: 14.sp, color: AppColors.textPrimary),
                   decoration: _dec('e.g. Monthly Contribution', Icons.description),
                 ),
@@ -77,12 +83,29 @@ class _RecordDonationFormState extends State<RecordDonationForm> {
               Gap(24.h),
               _SubmitButton(
                 isSubmitting: state.isSubmitting,
-                onPressed: () => context.read<RecordDonationCubit>().submitDonation(
-                      amount: double.tryParse(_amountCtrl.text) ?? 0,
-                      description: _descCtrl.text,
-                    ),
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    if (state.selectedDonor == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please select a donor'), backgroundColor: Colors.red),
+                      );
+                      return;
+                    }
+                    if (state.selectedCategory == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please select a category'), backgroundColor: Colors.red),
+                      );
+                      return;
+                    }
+                    context.read<RecordDonationCubit>().submitDonation(
+                          amount: double.tryParse(_amountCtrl.text) ?? 0,
+                          description: _descCtrl.text,
+                        );
+                  }
+                },
               ),
             ],
+            ),
           ),
         ),
       ),

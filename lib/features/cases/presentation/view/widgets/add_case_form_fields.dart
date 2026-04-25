@@ -1,3 +1,4 @@
+import 'package:donation_management_system/core/utils/validators.dart';
 import 'package:donation_management_system/core/widgets/widgets.dart';
 import 'package:donation_management_system/features/categories/presentation/view_model/categories_bloc/categories_bloc.dart';
 import 'package:donation_management_system/features/categories/presentation/view_model/categories_bloc/categories_state.dart';
@@ -5,6 +6,7 @@ import 'package:donation_management_system/features/categories/presentation/view
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddCaseFormFields extends StatelessWidget {
+  final GlobalKey<FormState> formKey;
   final TextEditingController nameController;
   final TextEditingController phoneController;
   final TextEditingController addressController;
@@ -16,6 +18,7 @@ class AddCaseFormFields extends StatelessWidget {
 
   const AddCaseFormFields({
     super.key,
+    required this.formKey,
     required this.nameController,
     required this.phoneController,
     required this.addressController,
@@ -28,9 +31,11 @@ class AddCaseFormFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Form(
+      key: formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
@@ -40,6 +45,7 @@ class AddCaseFormFields extends StatelessWidget {
                 child: CustomTextField(
                   hint: "Enter full name",
                   controller: nameController,
+                  validator: (val) => Validators.minLength(val, 3, fieldName: 'Full Name'),
                 ),
               ),
             ),
@@ -50,6 +56,7 @@ class AddCaseFormFields extends StatelessWidget {
                 child: CustomTextField(
                   hint: "+20 120 000 0000",
                   controller: phoneController,
+                  validator: Validators.phone,
                 ),
               ),
             ),
@@ -64,6 +71,7 @@ class AddCaseFormFields extends StatelessWidget {
                 child: CustomTextField(
                   hint: "123 Street, City, State",
                   controller: addressController,
+                  validator: (val) => Validators.minLength(val, 5, fieldName: 'Address'),
                 ),
               ),
             ),
@@ -88,10 +96,11 @@ class AddCaseFormFields extends StatelessWidget {
             hint: "Provide detailed information about the case...",
             controller: descriptionController,
             maxLines: 4,
+            validator: (val) => Validators.minLength(val, 10, fieldName: 'Description'),
           ),
         ),
       ],
-    );
+    ));
   }
 
   Widget _buildStatusDropdown() {

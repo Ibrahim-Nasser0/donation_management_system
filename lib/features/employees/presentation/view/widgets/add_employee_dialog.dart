@@ -6,7 +6,6 @@ import 'package:donation_management_system/features/employees/presentation/view/
 import 'package:donation_management_system/features/employees/presentation/view_model/add_employee_cubit/add_employee_cubit.dart';
 import 'package:donation_management_system/features/employees/presentation/view_model/add_employee_cubit/add_employee_state.dart';
 import 'package:donation_management_system/features/employees/presentation/view_model/employees_cubit/employees_cubit.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddEmployeeDialog extends StatefulWidget {
@@ -25,6 +24,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   late final TextEditingController _addressController;
   late final TextEditingController _emailController;
   late String selectedRole;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -70,6 +70,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
           width: MediaQuery.of(context).size.width * 0.5,
           child: SingleChildScrollView(
             child: AddEmployeeFormFields(
+              formKey: _formKey,
               nameController: _nameController,
               usernameController: _usernameController,
               passwordController: _passwordController,
@@ -124,6 +125,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   }
 
   void _submit(BuildContext context, bool isEditing) {
+    if (!_formKey.currentState!.validate()) return;
     final params = AddEmployeeParams(
       name: _nameController.text,
       username: _usernameController.text,

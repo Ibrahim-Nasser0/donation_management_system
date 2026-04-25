@@ -22,6 +22,7 @@ class _AddCaseDialogState extends State<AddCaseDialog> {
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   String selectedStatus = "Approved";
   int? selectedCategoryId;
@@ -72,6 +73,7 @@ class _AddCaseDialogState extends State<AddCaseDialog> {
           width: MediaQuery.of(context).size.width * 0.5,
           child: SingleChildScrollView(
             child: AddCaseFormFields(
+              formKey: _formKey,
               nameController: _nameController,
               phoneController: _phoneController,
               addressController: _addressController,
@@ -125,6 +127,8 @@ class _AddCaseDialogState extends State<AddCaseDialog> {
   }
 
   void _submit(BuildContext context) {
+    if (!_formKey.currentState!.validate()) return;
+
     if (selectedCategoryId == null) {
       context.showErrorSnackBar('Please select a category');
       return;

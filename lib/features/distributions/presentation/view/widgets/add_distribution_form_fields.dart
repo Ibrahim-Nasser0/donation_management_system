@@ -1,3 +1,4 @@
+import 'package:donation_management_system/core/utils/validators.dart';
 import 'package:donation_management_system/core/widgets/widgets.dart';
 import 'package:donation_management_system/features/cases/domain/entity/case_entity.dart';
 import 'package:donation_management_system/features/donations/domain/entity/donation_entity.dart';
@@ -5,6 +6,7 @@ import 'package:donation_management_system/features/employees/domain/entity/empl
 import 'package:flutter/material.dart';
 
 class AddDistributionFormFields extends StatelessWidget {
+  final GlobalKey<FormState> formKey;
   final TextEditingController amountController;
   final TextEditingController notesController;
   final List<CaseEntity> cases;
@@ -18,6 +20,7 @@ class AddDistributionFormFields extends StatelessWidget {
 
   const AddDistributionFormFields({
     super.key,
+    required this.formKey,
     required this.amountController,
     required this.notesController,
     required this.cases,
@@ -32,65 +35,73 @@ class AddDistributionFormFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _AutocompleteField<CaseEntity>(
-          label: "Select Case",
-          hint: "Search for a case...",
-          options: cases,
-          displayStringForOption: (option) => "Case #${option.id} - ${option.description}",
-          onSelected: onCaseSelected,
-        ),
-        Gap(20.h),
-        _AutocompleteField<Donation>(
-          label: "Donation Source",
-          hint: "Search for a donation...",
-          options: donations,
-          displayStringForOption: (option) => "Donation #${option.id} - ${option.donorName} (${option.amount} EGP)",
-          onSelected: onDonationSelected,
-        ),
-        Gap(20.h),
-        Row(
-          children: [
-            Expanded(
-              child: LabeledField(
-                label: "Amount",
-                child: CustomTextField(
-                  hint: "Enter amount",
-                  controller: amountController,
-                  keyboardType: TextInputType.number,
+    return Form(
+      key: formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _AutocompleteField<CaseEntity>(
+            label: "Select Case",
+            hint: "Search for a case...",
+            options: cases,
+            displayStringForOption: (option) =>
+                "Case #${option.id} - ${option.description}",
+            onSelected: onCaseSelected,
+          ),
+          Gap(20.h),
+          _AutocompleteField<Donation>(
+            label: "Donation Source",
+            hint: "Search for a donation...",
+            options: donations,
+            displayStringForOption: (option) =>
+                "Donation #${option.id} - ${option.donorName} (${option.amount} EGP)",
+            onSelected: onDonationSelected,
+          ),
+          Gap(20.h),
+          Row(
+            children: [
+              Expanded(
+                child: LabeledField(
+                  label: "Amount",
+                  child: CustomTextField(
+                    hint: "Enter amount",
+                    controller: amountController,
+                    keyboardType: TextInputType.number,
+                    validator: (val) => Validators.amount(val),
+                  ),
                 ),
               ),
-            ),
-            Gap(20.w),
-            Expanded(
-              child: LabeledField(
-                label: "Status",
-                child: _buildStatusDropdown(),
+              Gap(20.w),
+              Expanded(
+                child: LabeledField(
+                  label: "Status",
+                  child: _buildStatusDropdown(),
+                ),
               ),
-            ),
-          ],
-        ),
-        Gap(20.h),
-        _AutocompleteField<EmployeeEntity>(
-          label: "Handled By Employee",
-          hint: "Search for an employee...",
-          options: employees,
-          displayStringForOption: (option) => option.name,
-          onSelected: onEmployeeSelected,
-        ),
-        Gap(20.h),
-        LabeledField(
-          label: "Distribution Notes",
-          child: CustomTextField(
-            hint: "Provide additional details...",
-            controller: notesController,
-            maxLines: 4,
+            ],
           ),
-        ),
-      ],
+          Gap(20.h),
+          _AutocompleteField<EmployeeEntity>(
+            label: "Handled By Employee",
+            hint: "Search for an employee...",
+            options: employees,
+            displayStringForOption: (option) => option.name,
+            onSelected: onEmployeeSelected,
+          ),
+          Gap(20.h),
+          LabeledField(
+            label: "Distribution Notes",
+            child: CustomTextField(
+              hint: "Provide additional details...",
+              controller: notesController,
+              maxLines: 4,
+              validator: (val) =>
+                  Validators.minLength(val, 5, fieldName: 'Notes'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -106,10 +117,7 @@ class AddDistributionFormFields extends StatelessWidget {
           value: selectedStatus,
           isExpanded: true,
           items: ["Delivered", "Pending", "Completed"].map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
+            return DropdownMenuItem<String>(value: value, child: Text(value));
           }).toList(),
           onChanged: (val) => onStatusChanged(val!),
         ),
@@ -142,7 +150,9 @@ class _AutocompleteField<T extends Object> extends StatelessWidget {
         optionsBuilder: (TextEditingValue textEditingValue) {
           if (textEditingValue.text == '') return const Iterable.empty();
           return options.where((T option) {
-            return displayStringForOption(option).toLowerCase().contains(textEditingValue.text.toLowerCase());
+            return displayStringForOption(
+              option,
+            ).toLowerCase().contains(textEditingValue.text.toLowerCase());
           });
         },
         onSelected: onSelected,
