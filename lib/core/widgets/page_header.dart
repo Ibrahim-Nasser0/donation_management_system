@@ -13,7 +13,7 @@ class PageHeader extends StatelessWidget {
     super.key,
     required this.title,
     required this.subtitle,
-    required this.filledButtonText,
+    this.filledButtonText = '',
     this.onFilledPressed,
   });
 
@@ -47,25 +47,26 @@ class PageHeader extends StatelessWidget {
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: onFilledPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
+          if (onFilledPressed != null && filledButtonText.isNotEmpty)
+            ElevatedButton(
+              onPressed: onFilledPressed,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
+                elevation: 0,
               ),
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
-              elevation: 0,
-            ),
-            child: Text(
-              filledButtonText,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+              child: Text(
+                filledButtonText,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

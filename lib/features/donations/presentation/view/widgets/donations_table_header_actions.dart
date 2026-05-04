@@ -12,7 +12,7 @@ class DonationsTableHeaderActions extends StatelessWidget {
       child: PageHeader(
         title: 'Donations Tracking',
         subtitle: 'Monitor and manage all donations in one place',
-        filledButtonText: 'New Donation',
+       // filledButtonText: 'New Donation',
         onFilledPressed: () {},
       ),
     );
